@@ -7,7 +7,7 @@ import MapView from './MapView';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 20, marginBottom: 10, fontWeight: '600' }}>Behold, a map! ✨</Text>
+      <Text style={{ fontSize: 20, marginBottom: 10, fontWeight: '600' }}>Behold, a map ! ✨</Text>
       <MapView
         style={{
           height: 300,
