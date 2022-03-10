@@ -5,6 +5,8 @@ import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button} from 'rea
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { MapView, Marker, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from './MapBox';
 import checkStatus from './utils/checkStatus';
+import { setSelectedLog } from 'react-native/Libraries/LogBox/Data/LogBoxData';
+import { borderColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -23,6 +25,7 @@ function App() {
     {longitude: 2.4, latitude: 48.82}
   ]);
   const [travelCoordinate, setTravelCoordinate] = useState([]);
+  const [markerSelected, setMarkerSelected] = useState(false);
 
   // const route = fetch('https://api.mapbox.com/directions/v5/mapbox/driving/7.72583,48.46972;2.35183,48.85658;7.71583,48.48806.json?geometries=polyline&steps=true&overview=full&language=en&access_token=pk.eyJ1IjoiYXNsbmRza3ZucWRvZm1uIiwiYSI6ImNreWJyN3VkZzBpNnUydm4wcnJ5MmdvYm0ifQ.YNwpI3-HgF6nMhdaRRkKBg')
   //   .then(checkStatus)
@@ -56,16 +59,19 @@ function App() {
         id={"annotation-hidden-" + index}
         coordinate={[marker.longitude, marker.latitude]}
         style={{backgroundColor: 'white'}}
-        >
+        onSelected={() => {setMarkerSelected(true)}}
+        onDeselected={() => {setMarkerSelected(false)}}
+      >
           <Callout
             key={'callout-' + index}
-            style={{color: 'black', width: 200, height: 'auto', backgroundColor: 'white'}}
+            title={"Longitude: " + marker.longitude + "\nLatitude : " + marker.latitude}
+            style={{color: 'black', width: 200, height: 'auto'}}
           >
-            <View layerIndex={101} style={{margin: 5}}>
+            {/* <View layerIndex={101} style={{margin: 5}}>
               <Text>{"Longitude: " + marker.longitude + "\nLatitude : " + marker.latitude}</Text>
-              <Button title="Journal" onPress={() => {alert(marker)}}/>
-            </View>
-         </Callout>
+              <Button title={'journal'} onPress={() => {alert(marker)}}/>
+            </View> */}
+        </Callout>
       </PointAnnotation>
   )};
 
@@ -103,6 +109,20 @@ function App() {
               />
             </ShapeSource>
           </MapView>
+          {
+            markerSelected ?
+            <>
+              <View style={styles.markerMenu}>
+              <Pressable onPress={() => {alert('machin')}}>
+                <Text>machin</Text>
+              </Pressable>
+              <Pressable onPress={() => {alert('truc')}}>
+                <Text>truc</Text>
+              </Pressable>
+              </View>
+            </>
+            : null
+          }
           <StatusBar style="default" />
         </View>
        </SafeAreaView>
@@ -120,6 +140,16 @@ const styles = StyleSheet.create({
     height: windowHeight,
     margin: 0
   },
+  markerMenu:{
+    width: 100,
+    height: '100%',
+    backgroundColor: 'white',
+    position: 'absolute',
+    zIndex: 150,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'black'
+  }
 });
 
 export {getWindowSize, App};
