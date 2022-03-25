@@ -7,6 +7,8 @@ import { createBottomTabNavigator  } from '@react-navigation/bottom-tabs';
 
 import { MapScreen } from './screens/MapScreen';
 import DocumentScreen from './screens/DocumentScreen';
+import LogbookScreen from './screens/LogbookScreen';
+import ExpansesScreen from './screens/ExpansesScreen';
 
 const screenOptionStyle = {
     headerStyle: {
@@ -46,7 +48,8 @@ export default function App() {
             <Stack.Navigator initialRouteName="MapScreen" screenOptions={screenOptionStyle}>
                 <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
                 <Stack.Screen name="Documents" component={DocumentScreen}/>
-                {/* <Stack.Screen options={{ headerShown: false }} name="Connecté" component={ConnectedDrawerNavigator}/> */}
+                <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>
+                <Stack.Screen name="Journal de bord" component={LogbookScreen}/>
             </Stack.Navigator>
           </NavigationContainer>
       {/* </QueryClientProvider> */}

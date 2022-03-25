@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal} fr
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { MapView, Marker, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
 import checkStatus from '../utils/checkStatus';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign, FontAwesome5 } from '@expo/vector-icons'; 
 import CustomAlert from './CustomAlert';
 
 const windowWidth = Dimensions.get('window').width;
@@ -30,6 +30,7 @@ function MapScreen({navigation}) {
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
+  const [isMenuSpread, setIsMenuSpread] = useState(false);
 
   // const route = fetch('https://api.mapbox.com/directions/v5/mapbox/driving/7.72583,48.46972;2.35183,48.85658;7.71583,48.48806.json?geometries=polyline&steps=true&overview=full&language=en&access_token=pk.eyJ1IjoiYXNsbmRza3ZucWRvZm1uIiwiYSI6ImNreWJyN3VkZzBpNnUydm4wcnJ5MmdvYm0ifQ.YNwpI3-HgF6nMhdaRRkKBg')
   //   .then(checkStatus)
@@ -107,6 +108,31 @@ function MapScreen({navigation}) {
               />
             </ShapeSource>
           </MapView>
+          <View style={styles.menu}>
+            <Pressable style={styles.menuButton} onPress={() => setIsMenuSpread(!isMenuSpread)}>
+              {isMenuSpread ? 
+                <AntDesign name="up" size={30} color="black" style={{top: 3}}/> : 
+                <AntDesign name="down" size={30} color="black" style={{top: 3}}/>
+              }
+            </Pressable>
+            {
+              isMenuSpread ? 
+              <>
+                <Pressable style={styles.menuButton} onPress={() => {
+                  navigation.navigate('Journal de bord');
+                }}>
+                  <AntDesign name="book" size={28} color="black"/>
+                </Pressable>
+                <Pressable style={styles.menuButton} onPress={() => {
+                  navigation.navigate('Gestion des dépenses');
+                }}>
+                  <FontAwesome5 name="coins" size={28} color="black"/>
+                </Pressable>
+              </>
+              : null
+            }
+            
+          </View>
           {
             isMarkerSelected && markerSelected ?
             <>
@@ -117,12 +143,12 @@ function MapScreen({navigation}) {
                   </View>
                   <View style={styles.icon}>
                     <Pressable onPress={() => {setIsMarkerSelected(false); setMarkerSelected(null);}}>
-                      <AntDesign name="arrowright" size={36} color="black" />
+                      <AntDesign name="arrowright" size={36} color="black"/>
                     </Pressable>
                   </View>
                 </View>
                 <View>
-                  <Pressable style={styles.menuButton} onPress={() => {
+                  <Pressable style={styles.markerMenuButton} onPress={() => {
                     navigation.navigate('Documents', {
                         longitude: markerSelected.longitude,
                         latitude: markerSelected.latitude,
@@ -132,7 +158,7 @@ function MapScreen({navigation}) {
                   </Pressable>
                 </View>
                 <View>
-                  <Pressable style={styles.menuButton} onPress={() => {setShowDescriptionPopup(true)}}>
+                  <Pressable style={styles.markerMenuButton} onPress={() => {setShowDescriptionPopup(true)}}>
                     <Text style={styles.buttonText}>Description</Text>
                   </Pressable>
                 </View>
@@ -171,7 +197,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black'
   },
-  menuButton: {
+  markerMenuButton: {
     alignItems: 'center',
     justifyContent: 'center',
     width: '95%',
@@ -198,6 +224,22 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "bold",
     fontSize: 18
+  },
+  menu: {
+    position: 'absolute',
+    right: 10,
+    top: 10
+  },
+  menuButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    width: 50,
+    backgroundColor: '#fff',
+    marginTop: 5,
+    borderColor: 'black',
+    borderRadius: 25,
+    borderWidth: 1
   }
 });
 

@@ -27,7 +27,7 @@ export default function CustomAlert({ displayMsg, visibility, dismissAlert }) {
               borderRadius: 7,
               elevation: 10,
             }}>
-            <View style={{alignItems: 'center', textAlign: 'center', margin: 10}}>
+            <View style={{ margin: 10, width: '95%',}}>
               <Text style={{fontSize: 18, marginTop: 5}}>{displayMsg}</Text>
             </View>
 
