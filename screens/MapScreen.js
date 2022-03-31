@@ -85,6 +85,7 @@ function MapScreen({navigation}) {
               width: windowWidth,
             }}
             localizeLabels={true}
+            compassViewPosition={3}
           >
             <Camera
               zoomLevel={5}
