@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator  } from '@react-navigation/bottom-tabs';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { MapScreen } from './screens/MapScreen';
 import DocumentScreen from './screens/DocumentScreen';
@@ -28,6 +29,14 @@ const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 0 // 5000
+		}
+	}
+});
+
 export default function App() {
     useEffect(() => {
       async function prepare() {
@@ -48,7 +57,7 @@ export default function App() {
     }, []);
   
     return <>
-      {/* <QueryClientProvider client={queryClient}> */}
+      <QueryClientProvider client={queryClient}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Connexion" screenOptions={screenOptionStyle}>
               <Stack.Screen name="Connexion" component={ConnexionScreen}/>
@@ -62,6 +71,6 @@ export default function App() {
               <Stack.Screen name="Informations pratiques" component={InformationScreen}/>
             </Stack.Navigator>
           </NavigationContainer>
-      {/* </QueryClientProvider> */}
+      </QueryClientProvider>
     </>;
 }

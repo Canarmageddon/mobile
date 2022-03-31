@@ -8,6 +8,7 @@ import checkStatus from '../utils/checkStatus';
 import { AntDesign } from '@expo/vector-icons'; 
 import CustomAlert from '../components/CustomAlert';
 import TravelMenu from '../components/TravelMenu';
+import { useQuery, useQueryClient } from 'react-query';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -32,25 +33,23 @@ function MapScreen({navigation}) {
   const [markerSelected, setMarkerSelected] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
 
-  // const route = fetch('https://api.mapbox.com/directions/v5/mapbox/driving/7.72583,48.46972;2.35183,48.85658;7.71583,48.48806.json?geometries=polyline&steps=true&overview=full&language=en&access_token=pk.eyJ1IjoiYXNsbmRza3ZucWRvZm1uIiwiYSI6ImNreWJyN3VkZzBpNnUydm4wcnJ5MmdvYm0ifQ.YNwpI3-HgF6nMhdaRRkKBg')
-  //   .then(checkStatus)
-  //   .then(response => response.json())
-  //   .then(data => {
-  //       console.log(data['routes'][0].geometry);
-  //       // data['routes'][0]['legs'].forEach((leg) => {
-  //       //   setTravelCoordinate([...travelCoordinate, leg]);
-  //       // });
-  //       return data;
-  //   })  
-  //   .catch(error => {
-  //       console.log(error.message);
-  //   });
+  const { isLoading, isError, error, data: listPointOfInterest } = useQuery('listPointOfInterest', () => getPointOfInterest());
 
-  useEffect(() => {
-    let travelCoordinates = [];
-    listMarkers.map(marker => travelCoordinates.push([marker.longitude, marker.latitude]));
-    setTravelCoordinate(travelCoordinates);
-  }, []);
+  const getPointOfInterest = () => {
+    return fetch('http://api.26.muffin.pm/api/point_of_interest')
+      .then(checkStatus)
+      .then(response => response.json())
+      .then(data => {
+          // console.log(data);
+          let travelCoordinates = [];
+          data.map(marker => travelCoordinates.push([marker.location.longitude, marker.location.latitude]));
+          setTravelCoordinate(travelCoordinates);
+          return data;
+      })  
+      .catch(error => {
+          console.log(error.message);
+      });
+  }
 
   const geoJsonFeature = {
     type: 'Feature',
@@ -65,7 +64,7 @@ function MapScreen({navigation}) {
     return (
       <PointAnnotation
         id={"annotation-hidden-" + index}
-        coordinate={[marker.longitude, marker.latitude]}
+        coordinate={[marker.location.longitude, marker.location.latitude]}
         style={{backgroundColor: 'white'}}
         onSelected={() => {
           setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
@@ -91,7 +90,8 @@ function MapScreen({navigation}) {
               centerCoordinate={travelCoordinate[0]}
             />
             {
-              listMarkers.map((marker, index) => {
+              isLoading ? null :
+              listPointOfInterest.map((marker, index) => {
                 return <CustomMarker key={index} index={index} marker={marker}/>;
               })
             }
@@ -115,7 +115,7 @@ function MapScreen({navigation}) {
               <View style={styles.markerMenu}>
                 <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                   <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{markerSelected.titre}</Text>
+                    <Text style={styles.title}>{markerSelected.id}</Text>
                   </View>
                   <View style={styles.icon}>
                     <Pressable onPress={() => {setIsMarkerSelected(false); setMarkerSelected(null);}}>
@@ -124,12 +124,7 @@ function MapScreen({navigation}) {
                   </View>
                 </View>
                 <View>
-                  <Pressable style={styles.markerMenuButton} onPress={() => {
-                    navigation.navigate('Documents', {
-                        longitude: markerSelected.longitude,
-                        latitude: markerSelected.latitude,
-                      });
-                    }}>
+                  <Pressable style={styles.markerMenuButton} onPress={() => navigation.navigate('Documents')}>
                     <Text style={styles.buttonText}>Documents</Text>
                   </Pressable>
                 </View>
@@ -140,7 +135,7 @@ function MapScreen({navigation}) {
                 </View>
               </View>
               <CustomAlert
-                displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.longitude + '\nLatitude : ' + markerSelected.latitude}
+                displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}
               />
