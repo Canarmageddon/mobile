@@ -9,6 +9,11 @@ import { MapScreen } from './screens/MapScreen';
 import DocumentScreen from './screens/DocumentScreen';
 import LogbookScreen from './screens/LogbookScreen';
 import ExpansesScreen from './screens/ExpansesScreen';
+import PhotosScreen from './screens/PhotosScreen';
+import CameraScreen from './screens/CameraScreen';
+import InformationScreen from './screens/InformationScreen';
+import ConnexionScreen from './screens/ConnexionScreen';
+import TravelListScreen from './screens/TravelListScreen';
 
 const screenOptionStyle = {
     headerStyle: {
@@ -45,11 +50,16 @@ export default function App() {
     return <>
       {/* <QueryClientProvider client={queryClient}> */}
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="MapScreen" screenOptions={screenOptionStyle}>
-                <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
-                <Stack.Screen name="Documents" component={DocumentScreen}/>
-                <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>
-                <Stack.Screen name="Journal de bord" component={LogbookScreen}/>
+            <Stack.Navigator initialRouteName="Connexion" screenOptions={screenOptionStyle}>
+              <Stack.Screen name="Connexion" component={ConnexionScreen}/>
+              <Stack.Screen name="Mes voyages" component={TravelListScreen}/>
+              <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
+              <Stack.Screen name="Documents" component={DocumentScreen}/>
+              <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>
+              <Stack.Screen name="Journal de bord" component={LogbookScreen}/>
+              <Stack.Screen name="Photos" component={PhotosScreen}/>
+              <Stack.Screen name="Camera" component={CameraScreen} options={{ headerShown: false }}/>
+              <Stack.Screen name="Informations pratiques" component={InformationScreen}/>
             </Stack.Navigator>
           </NavigationContainer>
       {/* </QueryClientProvider> */}

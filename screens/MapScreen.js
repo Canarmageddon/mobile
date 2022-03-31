@@ -5,8 +5,9 @@ import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal} fr
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { MapView, Marker, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
 import checkStatus from '../utils/checkStatus';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons'; 
-import CustomAlert from './CustomAlert';
+import { AntDesign } from '@expo/vector-icons'; 
+import CustomAlert from '../components/CustomAlert';
+import TravelMenu from '../components/TravelMenu';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -30,7 +31,6 @@ function MapScreen({navigation}) {
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
-  const [isMenuSpread, setIsMenuSpread] = useState(false);
 
   // const route = fetch('https://api.mapbox.com/directions/v5/mapbox/driving/7.72583,48.46972;2.35183,48.85658;7.71583,48.48806.json?geometries=polyline&steps=true&overview=full&language=en&access_token=pk.eyJ1IjoiYXNsbmRza3ZucWRvZm1uIiwiYSI6ImNreWJyN3VkZzBpNnUydm4wcnJ5MmdvYm0ifQ.YNwpI3-HgF6nMhdaRRkKBg')
   //   .then(checkStatus)
@@ -88,7 +88,7 @@ function MapScreen({navigation}) {
           >
             <Camera
               zoomLevel={5}
-              centerCoordinate={[7.751991, 48.614813]}
+              centerCoordinate={travelCoordinate[0]}
             />
             {
               listMarkers.map((marker, index) => {
@@ -108,36 +108,12 @@ function MapScreen({navigation}) {
               />
             </ShapeSource>
           </MapView>
-          <View style={styles.menu}>
-            <Pressable style={styles.menuButton} onPress={() => setIsMenuSpread(!isMenuSpread)}>
-              {isMenuSpread ? 
-                <AntDesign name="up" size={30} color="black" style={{top: 3}}/> : 
-                <AntDesign name="down" size={30} color="black" style={{top: 3}}/>
-              }
-            </Pressable>
-            {
-              isMenuSpread ? 
-              <>
-                <Pressable style={styles.menuButton} onPress={() => {
-                  navigation.navigate('Journal de bord');
-                }}>
-                  <AntDesign name="book" size={28} color="black"/>
-                </Pressable>
-                <Pressable style={styles.menuButton} onPress={() => {
-                  navigation.navigate('Gestion des dépenses');
-                }}>
-                  <FontAwesome5 name="coins" size={28} color="black"/>
-                </Pressable>
-              </>
-              : null
-            }
-            
-          </View>
+          <TravelMenu navigation={navigation}/>
           {
             isMarkerSelected && markerSelected ?
             <>
               <View style={styles.markerMenu}>
-                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                   <View style={styles.titleContainer}>
                     <Text style={styles.title}>{markerSelected.titre}</Text>
                   </View>
@@ -195,7 +171,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     borderWidth: 1,
-    borderColor: 'black'
+    borderColor: 'black',
+    elevation: 15,
+    zIndex: 15
   },
   markerMenuButton: {
     alignItems: 'center',
@@ -208,7 +186,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderColor: 'black',
     borderRadius: 5,
-    borderWidth: 1
+    borderWidth: 1,
   },
   buttonText: {
     margin: 5
@@ -216,19 +194,16 @@ const styles = StyleSheet.create({
   icon: {
     alignItems: 'flex-end',
     display: 'flex',
-    marginRight: 10,
+    marginRight: 3
   },
   titleContainer:{
     justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 3
   },
   title: {
     fontWeight: "bold",
     fontSize: 18
-  },
-  menu: {
-    position: 'absolute',
-    right: 10,
-    top: 10
   },
   menuButton: {
     alignItems: 'center',
@@ -239,7 +214,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderColor: 'black',
     borderRadius: 25,
-    borderWidth: 1
+    borderWidth: 1,
   }
 });
 
