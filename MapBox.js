@@ -1,4 +1,3 @@
-// MapView.js
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import Constants from 'expo-constants';
@@ -7,10 +6,10 @@ let MapView;
 let Marker;
 let ShapeSource;
 let Camera;
-let PointAnnotation ;
+let PointAnnotation;
 let SymbolLayer;
-let VectorSource ;
-let LineLayer ;
+let VectorSource;
+let LineLayer;
 let Callout;
 
 if (Constants.appOwnership === 'expo') {
@@ -34,11 +33,11 @@ if (Constants.appOwnership === 'expo') {
   Marker = Mapbox.MarkerView;
   ShapeSource = Mapbox.ShapeSource;
   Camera = Mapbox.Camera;
-  PointAnnotation  = Mapbox.PointAnnotation ;
+  PointAnnotation = Mapbox.PointAnnotation;
   SymbolLayer = Mapbox.SymbolLayer;
-  VectorSource  = Mapbox.VectorSource ;
-  LineLayer  = Mapbox.LineLayer ;
-  Callout  = Mapbox.Callout ;
+  VectorSource = Mapbox.VectorSource;
+  LineLayer = Mapbox.LineLayer;
+  Callout = Mapbox.Callout;
 
 }
 
