@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import Constants from 'expo-constants';
 
 let MapView;
-let Marker;
+let MarkerView;
 let ShapeSource;
 let Camera;
 let PointAnnotation;
@@ -30,7 +30,7 @@ if (Constants.appOwnership === 'expo') {
   const Mapbox = require('@react-native-mapbox-gl/maps').default;
   Mapbox.setAccessToken('pk.eyJ1IjoiamJoYXJpIiwiYSI6ImNreXlmeWZsYzBqczEydnFrZjZoeDJqMmEifQ.7Z9vGxLMr0cWskUyVAZXZQ');
   MapView = Mapbox.MapView;
-  Marker = Mapbox.MarkerView;
+  MarkerView = Mapbox.MarkerView;
   ShapeSource = Mapbox.ShapeSource;
   Camera = Mapbox.Camera;
   PointAnnotation = Mapbox.PointAnnotation;
@@ -41,4 +41,4 @@ if (Constants.appOwnership === 'expo') {
 
 }
 
-export {MapView, Marker, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout};
+export {MapView, MarkerView, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout};
