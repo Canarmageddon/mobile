@@ -33,16 +33,15 @@ function MapScreen({navigation}) {
   const [markerSelected, setMarkerSelected] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
 
-  const { isLoading, isError, error, data: listPointOfInterest } = useQuery('listPointOfInterest', () => getPointOfInterest());
+  const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
-  const getPointOfInterest = () => {
-    return fetch('http://api.26.muffin.pm/api/point_of_interest')
+  const getTrip = () => {
+    return fetch('http://api.26.muffin.pm/api/trips/1')
       .then(checkStatus)
       .then(response => response.json())
       .then(data => {
-          // console.log(data);
           let travelCoordinates = [];
-          data.map(marker => travelCoordinates.push([marker.location.longitude, marker.location.latitude]));
+          data.steps.map(step => travelCoordinates.push([step.location.longitude, step.location.latitude]));
           setTravelCoordinate(travelCoordinates);
           return data;
       })  
@@ -91,7 +90,7 @@ function MapScreen({navigation}) {
             />
             {
               isLoading ? null :
-              listPointOfInterest.map((marker, index) => {
+              trip.pointsOfInterest.map((marker, index) => {
                 return <CustomMarker key={index} index={index} marker={marker}/>;
               })
             }
