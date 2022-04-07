@@ -118,6 +118,7 @@ function MapScreen({navigation}) {
             {
               listPointOfInterest.map((marker, index) => {
                 return <PointAnnotation
+                          key={"point-of-interest-" + index}
                           id={"point-of-interest-" + index}
                           coordinate={[marker.longitude, marker.latitude]}
                           onSelected={() => {
