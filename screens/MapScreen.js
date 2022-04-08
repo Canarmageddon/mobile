@@ -8,6 +8,7 @@ import checkStatus from '../utils/checkStatus';
 import { AntDesign } from '@expo/vector-icons'; 
 import CustomAlert from '../components/CustomAlert';
 import TravelMenu from '../components/TravelMenu';
+import { useQuery, useQueryClient } from 'react-query';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -18,21 +19,6 @@ function getWindowSize(){
 }
 
 function MapScreen({navigation}) {
-
-  const [listSteps, setListSteps] = useState([
-    {longitude: 15.25, latitude: 66.57, titre: 'alpha', description: 'Quelque part en Norvège'},
-    {longitude: 13, latitude: 42.89, titre: 'beta', description: 'Quelque part en Italie'},
-    {longitude: 3.92, latitude: 34.2, titre: 'omega', description: 'Quelque part en Algérie'},
-    {longitude: 7.751991, latitude: 48.614813, titre: 'Strasbourg', description: 'Strasbourg'},
-    {longitude: 2.4, latitude: 48.82, titre: 'Paris', description: 'Paris'},
-    {longitude: 5.36978, latitude: 43.296482, titre: 'Marseille', description: 'Marseille'}
-  ]);
-  const [listPointOfInterest, setListPointOfInterest] = useState([
-    {longitude: 15.35, latitude: 66.97, titre: 'Ours polaire', description: 'Quelque part en Norvège'},
-    {longitude: 7.66, latitude: 48.53, titre: 'Parc', description: 'Parc'},
-    {longitude: 7.80, latitude: 48.75, titre: 'Musée', description: 'Musée'},
-    {longitude: 7.59, latitude: 48.63, titre: 'Restaurant', description: 'Restaurant'},
-  ]);
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
@@ -40,25 +26,22 @@ function MapScreen({navigation}) {
   const blueMarker = require('../assets/blue_marker.png');
   const [isImageCharged, setIsImageCharged] = useState(false);
 
-  // const route = fetch('https://api.mapbox.com/directions/v5/mapbox/driving/7.72583,48.46972;2.35183,48.85658;7.71583,48.48806.json?geometries=polyline&steps=true&overview=full&language=en&access_token=pk.eyJ1IjoiYXNsbmRza3ZucWRvZm1uIiwiYSI6ImNreWJyN3VkZzBpNnUydm4wcnJ5MmdvYm0ifQ.YNwpI3-HgF6nMhdaRRkKBg')
-  //   .then(checkStatus)
-  //   .then(response => response.json())
-  //   .then(data => {
-  //       console.log(data['routes'][0].geometry);
-  //       // data['routes'][0]['legs'].forEach((leg) => {
-  //       //   setTravelCoordinate([...travelCoordinate, leg]);
-  //       // });
-  //       return data;
-  //   })  
-  //   .catch(error => {
-  //       console.log(error.message);
-  //   });
+  const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
-  useEffect(() => {
-    let travelCoordinates = [];
-    listSteps.map(marker => travelCoordinates.push([marker.longitude, marker.latitude]));
-    setTravelCoordinate(travelCoordinates);
-  }, []);
+  const getTrip = () => {
+    return fetch('http://api.26.muffin.pm/api/trips/1')
+      .then(checkStatus)
+      .then(response => response.json())
+      .then(data => {
+          let travelCoordinates = [];
+          data.steps.map(step => travelCoordinates.push([step.location.longitude, step.location.latitude]));
+          setTravelCoordinate(travelCoordinates);
+          return data;
+      })  
+      .catch(error => {
+          console.log(error.message);
+      });
+  }
 
   const geoJsonFeature = {
     type: 'Feature',
@@ -74,18 +57,17 @@ function MapScreen({navigation}) {
       <PointAnnotation
         id={"step-" + index}
         children={true}
-        coordinate={[marker.longitude, marker.latitude]}
+        coordinate={[marker.location.longitude, marker.location.latitude]}
         anchor={{x: 0.5, y: 1}}
         onSelected={() => {
           setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
           setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
         }}
-        layerIndex={200}
       >
         <Image
           id={"pointCount"+ index}
           source={blueMarker}
-          style={{ width: 28, height: 40 }}
+          style={{ width: 28, height: 40}}
           onLoad={() => {
             setIsImageCharged(true);
           }}
@@ -104,23 +86,25 @@ function MapScreen({navigation}) {
               width: windowWidth,
             }}
             localizeLabels={true}
-            compassViewPosition={3}
+            compassViewPosition={0}
           >
             <Camera
               zoomLevel={5}
               centerCoordinate={travelCoordinate[0]}
             />
             {
-              listSteps.map((marker, index) => {
+              isLoading ? null :
+              trip.steps.map((marker, index) => {
                 return <CustomMarker key={index} index={index} marker={marker}/>;
               })
             }
             {
-              listPointOfInterest.map((marker, index) => {
+              isLoading ? null :
+              trip.pointsOfInterest.map((marker, index) => {
                 return <PointAnnotation
                           key={"point-of-interest-" + index}
                           id={"point-of-interest-" + index}
-                          coordinate={[marker.longitude, marker.latitude]}
+                          coordinate={[marker.location.longitude, marker.location.latitude]}
                           onSelected={() => {
                             setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
                             setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
@@ -148,7 +132,7 @@ function MapScreen({navigation}) {
               <View style={styles.markerMenu}>
                 <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                   <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{markerSelected.titre}</Text>
+                    <Text style={styles.title}>{markerSelected.id}</Text>
                   </View>
                   <View style={styles.icon}>
                     <Pressable onPress={() => {setIsMarkerSelected(false); setMarkerSelected(null);}}>
@@ -157,12 +141,7 @@ function MapScreen({navigation}) {
                   </View>
                 </View>
                 <View>
-                  <Pressable style={styles.markerMenuButton} onPress={() => {
-                    navigation.navigate('Documents', {
-                        longitude: markerSelected.longitude,
-                        latitude: markerSelected.latitude,
-                      });
-                    }}>
+                  <Pressable style={styles.markerMenuButton} onPress={() => navigation.navigate('Documents')}>
                     <Text style={styles.buttonText}>Documents</Text>
                   </Pressable>
                 </View>
@@ -173,7 +152,7 @@ function MapScreen({navigation}) {
                 </View>
               </View>
               <CustomAlert
-                displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.longitude + '\nLatitude : ' + markerSelected.latitude}
+                displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}
               />
