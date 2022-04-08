@@ -1,9 +1,9 @@
 // MapScreen.js
 import React, {useState, useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal} from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal,} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { MapView, Marker, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
+import { MapView, MarkerView, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
 import checkStatus from '../utils/checkStatus';
 import { AntDesign } from '@expo/vector-icons'; 
 import CustomAlert from '../components/CustomAlert';
@@ -20,7 +20,7 @@ function getWindowSize(){
 
 function MapScreen({navigation}) {
 
-  const [listMarkers, setListeMarkers] = useState([
+  const [listSteps, setListSteps] = useState([
     {longitude: 15.25, latitude: 66.57, titre: 'alpha', description: 'Quelque part en Norvège'},
     {longitude: 13, latitude: 42.89, titre: 'beta', description: 'Quelque part en Italie'},
     {longitude: 3.92, latitude: 34.2, titre: 'omega', description: 'Quelque part en Algérie'},
@@ -28,10 +28,18 @@ function MapScreen({navigation}) {
     {longitude: 2.4, latitude: 48.82, titre: 'Paris', description: 'Paris'},
     {longitude: 5.36978, latitude: 43.296482, titre: 'Marseille', description: 'Marseille'}
   ]);
+  const [listPointOfInterest, setListPointOfInterest] = useState([
+    {longitude: 15.35, latitude: 66.97, titre: 'Ours polaire', description: 'Quelque part en Norvège'},
+    {longitude: 7.66, latitude: 48.53, titre: 'Parc', description: 'Parc'},
+    {longitude: 7.80, latitude: 48.75, titre: 'Musée', description: 'Musée'},
+    {longitude: 7.59, latitude: 48.63, titre: 'Restaurant', description: 'Restaurant'},
+  ]);
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
+  const blueMarker = require('../assets/blue_marker.png');
+  const [isImageCharged, setIsImageCharged] = useState(false);
 
   const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
@@ -58,18 +66,29 @@ function MapScreen({navigation}) {
       coordinates: travelCoordinate,
     },
   };
-  
+
   const CustomMarker = ({index, marker}) => {
     return (
       <PointAnnotation
-        id={"annotation-hidden-" + index}
+        id={"step-" + index}
+        children={true}
         coordinate={[marker.location.longitude, marker.location.latitude]}
-        style={{backgroundColor: 'white'}}
+        anchor={{x: 0.5, y: 1}}
         onSelected={() => {
           setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
           setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
         }}
-      />
+        layerIndex={200}
+      >
+        <Image
+          id={"pointCount"+ index}
+          source={blueMarker}
+          style={{ width: 28, height: 40 }}
+          onLoad={() => {
+            setIsImageCharged(true);
+          }}
+        />
+      </PointAnnotation>
   )};
 
   return (
@@ -83,6 +102,7 @@ function MapScreen({navigation}) {
               width: windowWidth,
             }}
             localizeLabels={true}
+            compassViewPosition={3}
           >
             <Camera
               zoomLevel={5}
@@ -90,8 +110,21 @@ function MapScreen({navigation}) {
             />
             {
               isLoading ? null :
-              trip.pointsOfInterest.map((marker, index) => {
+              trip.steps.map((marker, index) => {
                 return <CustomMarker key={index} index={index} marker={marker}/>;
+              })
+            }
+            {
+              listPointOfInterest.map((marker, index) => {
+                return <PointAnnotation
+                          key={"point-of-interest-" + index}
+                          id={"point-of-interest-" + index}
+                          coordinate={[marker.location.longitude, marker.location.latitude]}
+                          onSelected={() => {
+                            setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
+                            setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
+                          }}
+                        />;
               })
             }
             <ShapeSource id="route-source" shape={geoJsonFeature}>
