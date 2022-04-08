@@ -19,21 +19,6 @@ function getWindowSize(){
 }
 
 function MapScreen({navigation}) {
-
-  const [listSteps, setListSteps] = useState([
-    {longitude: 15.25, latitude: 66.57, titre: 'alpha', description: 'Quelque part en Norvège'},
-    {longitude: 13, latitude: 42.89, titre: 'beta', description: 'Quelque part en Italie'},
-    {longitude: 3.92, latitude: 34.2, titre: 'omega', description: 'Quelque part en Algérie'},
-    {longitude: 7.751991, latitude: 48.614813, titre: 'Strasbourg', description: 'Strasbourg'},
-    {longitude: 2.4, latitude: 48.82, titre: 'Paris', description: 'Paris'},
-    {longitude: 5.36978, latitude: 43.296482, titre: 'Marseille', description: 'Marseille'}
-  ]);
-  const [listPointOfInterest, setListPointOfInterest] = useState([
-    {longitude: 15.35, latitude: 66.97, titre: 'Ours polaire', description: 'Quelque part en Norvège'},
-    {longitude: 7.66, latitude: 48.53, titre: 'Parc', description: 'Parc'},
-    {longitude: 7.80, latitude: 48.75, titre: 'Musée', description: 'Musée'},
-    {longitude: 7.59, latitude: 48.63, titre: 'Restaurant', description: 'Restaurant'},
-  ]);
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
@@ -78,12 +63,11 @@ function MapScreen({navigation}) {
           setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
           setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
         }}
-        layerIndex={200}
       >
         <Image
           id={"pointCount"+ index}
           source={blueMarker}
-          style={{ width: 28, height: 40 }}
+          style={{ width: 28, height: 40}}
           onLoad={() => {
             setIsImageCharged(true);
           }}
@@ -102,7 +86,7 @@ function MapScreen({navigation}) {
               width: windowWidth,
             }}
             localizeLabels={true}
-            compassViewPosition={3}
+            compassViewPosition={0}
           >
             <Camera
               zoomLevel={5}
@@ -115,7 +99,8 @@ function MapScreen({navigation}) {
               })
             }
             {
-              listPointOfInterest.map((marker, index) => {
+              isLoading ? null :
+              trip.pointsOfInterest.map((marker, index) => {
                 return <PointAnnotation
                           key={"point-of-interest-" + index}
                           id={"point-of-interest-" + index}
