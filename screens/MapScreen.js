@@ -1,13 +1,13 @@
 // MapScreen.js
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal,} from 'react-native';
+import { Animated, StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal,} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { MapView, MarkerView, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
 import checkStatus from '../utils/checkStatus';
-import { AntDesign } from '@expo/vector-icons'; 
 import CustomAlert from '../components/CustomAlert';
 import TravelMenu from '../components/TravelMenu';
+import MarkerMenu from '../components/MarkerMenu';
 import { useQuery, useQueryClient } from 'react-query';
 
 const windowWidth = Dimensions.get('window').width;
@@ -22,9 +22,12 @@ function MapScreen({navigation}) {
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
+  const [markerSelectedType, setMarkerSelectedType] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
   const blueMarker = require('../assets/blue_marker.png');
   const [isImageCharged, setIsImageCharged] = useState(false);
+  const menuHeight = Dimensions.get('window').height * 18 / 100;
+  const slideAnim = useRef(new Animated.Value(0)).current
 
   const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
@@ -52,6 +55,20 @@ function MapScreen({navigation}) {
     },
   };
 
+  const startAnimation = (isMarkerSelected) => {
+    Animated.timing(slideAnim, {
+      toValue: isMarkerSelected ? 0 : menuHeight,
+      duration: 200,
+      useNativeDriver: true,  
+    }).start(() => {
+      if(!isMarkerSelected){
+        setIsMarkerSelected(false); 
+        setMarkerSelected(null);
+        setMarkerSelectedType(null);
+      }
+    });
+  }
+
   const CustomMarker = ({index, marker}) => {
     return (
       <PointAnnotation
@@ -60,8 +77,19 @@ function MapScreen({navigation}) {
         coordinate={[marker.location.longitude, marker.location.latitude]}
         anchor={{x: 0.5, y: 1}}
         onSelected={() => {
-          setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
-          setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
+          let initialMarkerSelectedState = isMarkerSelected;
+          let markerIsTheSame = JSON.stringify(markerSelected) === JSON.stringify(marker);
+          if(!initialMarkerSelectedState){
+            startAnimation(true);
+          }
+          if(!markerIsTheSame){
+            setIsMarkerSelected(true);
+            setMarkerSelected(marker);
+            setMarkerSelectedType('step');
+          }
+          else{
+            startAnimation(!initialMarkerSelectedState);
+          }
         }}
       >
         <Image
@@ -106,8 +134,19 @@ function MapScreen({navigation}) {
                           id={"point-of-interest-" + index}
                           coordinate={[marker.location.longitude, marker.location.latitude]}
                           onSelected={() => {
-                            setIsMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? !isMarkerSelected : true); 
-                            setMarkerSelected(JSON.stringify(markerSelected) === JSON.stringify(marker) ? null : marker);
+                            let initialMarkerSelectedState = isMarkerSelected;
+                            let markerIsTheSame = JSON.stringify(markerSelected) === JSON.stringify(marker);
+                            if(!initialMarkerSelectedState){
+                              startAnimation(true);
+                            }
+                            if(!markerIsTheSame){
+                              setIsMarkerSelected(true);
+                              setMarkerSelected(marker);
+                              setMarkerSelectedType('pointOfInterest');
+                            }
+                            else{
+                              startAnimation(!initialMarkerSelectedState);
+                            }
                           }}
                         />;
               })
@@ -129,28 +168,7 @@ function MapScreen({navigation}) {
           {
             isMarkerSelected && markerSelected ?
             <>
-              <View style={styles.markerMenu}>
-                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                  <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{markerSelected.location.name}</Text>
-                  </View>
-                  <View style={styles.icon}>
-                    <Pressable onPress={() => {setIsMarkerSelected(false); setMarkerSelected(null);}}>
-                      <AntDesign name="arrowright" size={36} color="black"/>
-                    </Pressable>
-                  </View>
-                </View>
-                <View>
-                  <Pressable style={styles.markerMenuButton} onPress={() => navigation.navigate('Documents')}>
-                    <Text style={styles.buttonText}>Documents</Text>
-                  </Pressable>
-                </View>
-                <View>
-                  <Pressable style={styles.markerMenuButton} onPress={() => {setShowDescriptionPopup(true)}}>
-                    <Text style={styles.buttonText}>Description</Text>
-                  </Pressable>
-                </View>
-              </View>
+              <MarkerMenu slideAnim={slideAnim} startAnimation={startAnimation} markerSelected={markerSelected} markerSelectedType={markerSelectedType}/>              
               <CustomAlert
                 displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
                 visibility={showDescriptionPopup}
@@ -175,47 +193,6 @@ const styles = StyleSheet.create({
     width: windowWidth,
     height: windowHeight,
     margin: 0
-  },
-  markerMenu:{
-    width: '35%',
-    height: '100%',
-    backgroundColor: '#87CEFA',
-    position: 'absolute',
-    right: 0,
-    borderWidth: 1,
-    borderColor: 'black',
-    elevation: 15,
-    zIndex: 15
-  },
-  markerMenuButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '95%',
-    height: 50,
-    backgroundColor: '#90EE90',
-    marginRight: 'auto',
-    marginLeft:  'auto',
-    marginTop: 10,
-    borderColor: 'black',
-    borderRadius: 5,
-    borderWidth: 1,
-  },
-  buttonText: {
-    margin: 5
-  },
-  icon: {
-    alignItems: 'flex-end',
-    display: 'flex',
-    marginRight: 3
-  },
-  titleContainer:{
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 3
-  },
-  title: {
-    fontWeight: "bold",
-    fontSize: 18
   },
   menuButton: {
     alignItems: 'center',
