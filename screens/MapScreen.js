@@ -168,7 +168,7 @@ function MapScreen({navigation}) {
           {
             isMarkerSelected && markerSelected ?
             <>
-              <MarkerMenu slideAnim={slideAnim} startAnimation={startAnimation} markerSelected={markerSelected} markerSelectedType={markerSelectedType}/>              
+              <MarkerMenu slideAnim={slideAnim} startAnimation={startAnimation} navigation={navigation} markerSelected={markerSelected} markerSelectedType={markerSelectedType} setShowDescriptionPopup={setShowDescriptionPopup}/>              
               <CustomAlert
                 displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
                 visibility={showDescriptionPopup}

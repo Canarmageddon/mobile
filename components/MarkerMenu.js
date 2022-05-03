@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Animated, Text, View, Pressable } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 
-const MarkerMenu = ({slideAnim, startAnimation, navigation, markerSelected, markerSelectedType}) => {
+const MarkerMenu = ({slideAnim, startAnimation, navigation, markerSelected, markerSelectedType, setShowDescriptionPopup}) => {
   const styles = {
     slide: { 
       transform: [{translateY: slideAnim}]
