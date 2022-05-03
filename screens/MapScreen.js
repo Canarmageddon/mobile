@@ -29,7 +29,7 @@ function MapScreen({navigation}) {
   const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
   const getTrip = () => {
-    return fetch('http://api.26.muffin.pm/api/trips/1')
+    return fetch('http://vm-26.iutrs.unistra.fr/api/trips/1')
       .then(checkStatus)
       .then(response => response.json())
       .then(data => {
@@ -132,7 +132,7 @@ function MapScreen({navigation}) {
               <View style={styles.markerMenu}>
                 <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                   <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{markerSelected.id}</Text>
+                    <Text style={styles.title}>{markerSelected.location.name}</Text>
                   </View>
                   <View style={styles.icon}>
                     <Pressable onPress={() => {setIsMarkerSelected(false); setMarkerSelected(null);}}>

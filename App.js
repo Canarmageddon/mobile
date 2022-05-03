@@ -14,7 +14,7 @@ import PhotosScreen from './screens/PhotosScreen';
 import CameraScreen from './screens/CameraScreen';
 import InformationScreen from './screens/InformationScreen';
 import ConnexionScreen from './screens/ConnexionScreen';
-import TravelListScreen from './screens/TravelListScreen';
+import TripListScreen from './screens/TripListScreen';
 
 const screenOptionStyle = {
     headerStyle: {
@@ -61,7 +61,7 @@ export default function App() {
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Connexion" screenOptions={screenOptionStyle}>
               <Stack.Screen name="Connexion" component={ConnexionScreen}/>
-              <Stack.Screen name="Mes voyages" component={TravelListScreen}/>
+              <Stack.Screen name="Mes voyages" component={TripListScreen}/>
               <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
               <Stack.Screen name="Documents" component={DocumentScreen}/>
               <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>

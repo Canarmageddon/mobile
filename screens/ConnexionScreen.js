@@ -33,7 +33,7 @@ import checkStatus from "../utils/checkStatus"
   
     const connect = (login, password) => {
         navigation.navigate('Mes voyages');
-    //   fetch('http://sterne.iutrs.unistra.fr:8080/api/users/signin', {
+    //   fetch('http://vm-26.iutrs.unistra.fr/api/users/signin', {
     //     method: "POST",
     //     headers: {
     //         "Content-Type": "application/json"
