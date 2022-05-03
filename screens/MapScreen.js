@@ -32,7 +32,7 @@ function MapScreen({navigation}) {
   const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
 
   const getTrip = () => {
-    return fetch('http://api.26.muffin.pm/api/trips/1')
+    return fetch('http://vm-26.iutrs.unistra.fr/api/trips/1')
       .then(checkStatus)
       .then(response => response.json())
       .then(data => {

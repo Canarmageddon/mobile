@@ -9,22 +9,22 @@ import React from "react";
 import checkStatus from "../utils/checkStatus";
 // import { useUser } from "../context/userContext";
 // import { useQuery, useQueryClient } from 'react-query';
-// import { useTravelUpdate } from "../context/travelContext";
+// import { useTripUpdate } from "../context/tripContext";
 
-const TravelListScreen = ({navigation, route}) => {
+const TripListScreen = ({navigation, route}) => {
     // const [user] = useUser();
-    // const travelUpdate = useTravelUpdate();
+    // const tripUpdate = useTripUpdate();
     // const queryClient = useQueryClient();
 
-    // const { isLoading, isError, error, data: listeTravel } = useQuery(['listeTravel', user.id], () => getUserTravels(user.id));
+    // const { isLoading, isError, error, data: listeTrip } = useQuery(['listeTrip', user.id], () => getUserTrips(user.id));
 
-    const getUserTravels = userId => {
-        // return fetch('http://' + userId +'/travel')
+    const getUserTrips = userId => {
+        // return fetch('http://vm-26.iutrs.unistra.fr/api/' + userId +'/trip')
         //     .then(checkStatus)
         //     .then(response => response.json())
         //     .then(data => {
         //         console.log(data);
-        //         queryClient.setQueryData(['listeTravel', user.id], listeTravel);
+        //         queryClient.setQueryData(['listeTrip', user.id], listeTrip);
         //         return data;
         //     })  
         //     .catch(error => {
@@ -32,13 +32,13 @@ const TravelListScreen = ({navigation, route}) => {
         //     });
     }
 
-    let ListeTravelItem = ({ item: travel }) => {
+    let TripListItem = ({ item: trip }) => {
         return <>                
-            <View style={styles.travelButton}>
+            <View style={styles.tripButton}>
                 <Button onPress={() => {
-                    // travelUpdate(travel);
+                    // tripUpdate(trip);
                     navigation.navigate("Mes voyages")
-                }} title={travel.name} color={'#00A5C7'}></Button>
+                }} title={trip.name} color={'#00A5C7'}></Button>
             </View>
         </>
     }
@@ -47,12 +47,12 @@ const TravelListScreen = ({navigation, route}) => {
         <View style={styles.containerBorder}>
             {/* {isLoading ? <Text style={styles.text}>Loading...</Text> : 
                 <FlatList
-                    data={listeTravel}
-                    renderItem={ListeTravelItem}
+                    data={listeTrip}
+                    renderItem={TripListItem}
                     keyExtractor={item => item.id}
                 />
             } */}
-            <View style={styles.travelButton}>
+            <View style={styles.tripButton}>
                 <Button onPress={() => {
                     navigation.navigate("MapScreen")
                 }} title={'Voyage en Grèce'} color={'#00A5C7'}></Button>
@@ -61,10 +61,10 @@ const TravelListScreen = ({navigation, route}) => {
     </>;
 };
   
-export default TravelListScreen;
+export default TripListScreen;
 
 const styles = StyleSheet.create({
-    travelButton: {
+    tripButton: {
         margin: 8,
         borderWidth: 1, 
         borderRadius: 3,
