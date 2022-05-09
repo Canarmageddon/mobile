@@ -10,47 +10,31 @@ import {
 import React from "react";
 import { useState, useEffect } from "react";
 import checkStatus from "../utils/checkStatus"
-// import { useUserUpdate } from "../context/userContext";
+import { useUserUpdate } from "../context/userContext";
   
   const ConnexionScreen = ({navigation}) => {
-    // const validator = require('validator');
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [displayPassword, setDisplayPassword] = useState(true);
     const [addrIsEmail, setAddrIsEmail] = useState(true);
-    // const userUpdate = useUserUpdate();
-  
-    // useEffect(() => {    
-    //   if(validator.isEmail(login)){
-    //       setAddrIsEmail(true);
-    //   }
-    //   else{
-    //       setAddrIsEmail(false);
-    //   }
-    // }, [login]);
+    const userUpdate = useUserUpdate();
   
     const handleDisplayPassword = () => setDisplayPassword(!displayPassword);
   
     const connect = (login, password) => {
-        navigation.navigate('Mes voyages');
-    //   fetch('http://vm-26.iutrs.unistra.fr/api/users/signin', {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify({username: login, password})
-    //   })
-    //     .then(checkStatus)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       userUpdate[0](data);
-    //       userUpdate[1](data.token);
-    //       navigation.navigate('Connecté');
-    //     })        
-    //     .catch(error => {
-    //       alert(error.message);
-    //       console.log(error);
-    //     });
+        // navigation.navigate('Mes voyages');
+        // fetch('http://vm-26.iutrs.unistra.fr/api/users/signin', {
+        fetch('http://vm-26.iutrs.unistra.fr/api/users/2')
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => {
+                userUpdate[0](data);
+                navigation.navigate('Mes voyages');
+            })        
+            .catch(error => {
+                alert(error.message);
+                console.log(error);
+            });
     }
   
     return <>

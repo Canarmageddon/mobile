@@ -9,6 +9,8 @@ import CustomAlert from '../components/CustomAlert';
 import TravelMenu from '../components/TravelMenu';
 import MarkerMenu from '../components/MarkerMenu';
 import { useQuery, useQueryClient } from 'react-query';
+import { AntDesign } from '@expo/vector-icons'; 
+import { useTrip } from "../context/tripContext";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -19,25 +21,43 @@ function getWindowSize(){
 }
 
 function MapScreen({navigation}) {
+  const blueMarker = require('../assets/blue_marker.png');
+  const trip = useTrip();
+  const slideAnim = useRef(new Animated.Value(0)).current
+  const menuHeight = Dimensions.get('window').height * 18 / 100;
+  const queryClient = useQueryClient();
+
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [markerSelectedType, setMarkerSelectedType] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
-  const blueMarker = require('../assets/blue_marker.png');
   const [isImageCharged, setIsImageCharged] = useState(false);
-  const menuHeight = Dimensions.get('window').height * 18 / 100;
-  const slideAnim = useRef(new Animated.Value(0)).current
 
-  const { isLoading, isError, error, data: trip } = useQuery('trip', () => getTrip());
+  const { isLoading: isLoadingSteps, isError: isErrorSteps, error: errorSteps, data: steps } = useQuery(['steps', trip.id], () => getTripSteps(trip.id));
+  const { isLoading: isLoadingPOI, isError: isErrorPOI, error: errorPOI, data: pointsOfInterest } = useQuery(['pointsOfInterest', trip.id], () => getTripPOI(trip.id));
 
-  const getTrip = () => {
-    return fetch('http://vm-26.iutrs.unistra.fr/api/trips/1')
+  const getTripPOI = tripId => {
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/poi`)
       .then(checkStatus)
       .then(response => response.json())
       .then(data => {
+          // console.log(data);
+          return data;
+      })  
+      .catch(error => {
+          console.log(error.message);
+      });
+  }
+
+  const getTripSteps = tripId => {
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/steps`)
+      .then(checkStatus)
+      .then(response => response.json())
+      .then(data => {
+          // console.log(data);
           let travelCoordinates = [];
-          data.steps.map(step => travelCoordinates.push([step.location.longitude, step.location.latitude]));
+          data.map(step => travelCoordinates.push([step.location.longitude, step.location.latitude]));
           setTravelCoordinate(travelCoordinates);
           return data;
       })  
@@ -69,7 +89,7 @@ function MapScreen({navigation}) {
     });
   }
 
-  const CustomMarker = ({index, marker}) => {
+  const StepMarker = ({index, marker}) => {
     return (
       <PointAnnotation
         id={"step-" + index}
@@ -95,13 +115,36 @@ function MapScreen({navigation}) {
         <Image
           id={"pointCount"+ index}
           source={blueMarker}
-          style={{ width: 28, height: 40}}
+          style={{ width: 24, height: 35}}
           onLoad={() => {
             setIsImageCharged(true);
           }}
         />
       </PointAnnotation>
   )};
+  
+  const POIMarker = ({index, marker}) => {
+    return <PointAnnotation
+      key={"point-of-interest-" + index}
+      id={"point-of-interest-" + index}
+      coordinate={[marker.location.longitude, marker.location.latitude]}
+      onSelected={() => {
+        let initialMarkerSelectedState = isMarkerSelected;
+        let markerIsTheSame = JSON.stringify(markerSelected) === JSON.stringify(marker);
+        if(!initialMarkerSelectedState){
+          startAnimation(true);
+        }
+        if(!markerIsTheSame){
+          setIsMarkerSelected(true);
+          setMarkerSelected(marker);
+          setMarkerSelectedType('pointOfInterest');
+        }
+        else{
+          startAnimation(!initialMarkerSelectedState);
+        }
+      }}
+    />;
+  }
 
   return (
     <SafeAreaProvider>
@@ -114,41 +157,22 @@ function MapScreen({navigation}) {
               width: windowWidth,
             }}
             localizeLabels={true}
-            compassViewPosition={0}
+            compassViewPosition={3}
           >
             <Camera
               zoomLevel={5}
               centerCoordinate={travelCoordinate[0]}
             />
             {
-              isLoading ? null :
-              trip.steps.map((marker, index) => {
-                return <CustomMarker key={index} index={index} marker={marker}/>;
+              isLoadingSteps ? null :
+              steps.map((marker, index) => {
+                return <StepMarker key={index} index={index} marker={marker}/>;
               })
             }
             {
-              isLoading ? null :
-              trip.pointsOfInterest.map((marker, index) => {
-                return <PointAnnotation
-                          key={"point-of-interest-" + index}
-                          id={"point-of-interest-" + index}
-                          coordinate={[marker.location.longitude, marker.location.latitude]}
-                          onSelected={() => {
-                            let initialMarkerSelectedState = isMarkerSelected;
-                            let markerIsTheSame = JSON.stringify(markerSelected) === JSON.stringify(marker);
-                            if(!initialMarkerSelectedState){
-                              startAnimation(true);
-                            }
-                            if(!markerIsTheSame){
-                              setIsMarkerSelected(true);
-                              setMarkerSelected(marker);
-                              setMarkerSelectedType('pointOfInterest');
-                            }
-                            else{
-                              startAnimation(!initialMarkerSelectedState);
-                            }
-                          }}
-                        />;
+              isLoadingPOI ? null :
+              pointsOfInterest.map((marker, index) => {
+                return <POIMarker key={index} index={index} marker={marker}/>;
               })
             }
             <ShapeSource id="route-source" shape={geoJsonFeature}>
@@ -164,20 +188,25 @@ function MapScreen({navigation}) {
               />
             </ShapeSource>
           </MapView>
+          <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+              <AntDesign name="arrowleft" size={30} color="black"/> 
+          </Pressable>
           <TravelMenu navigation={navigation}/>
           {
             isMarkerSelected && markerSelected ?
             <>
               <MarkerMenu slideAnim={slideAnim} startAnimation={startAnimation} navigation={navigation} markerSelected={markerSelected} markerSelectedType={markerSelectedType} setShowDescriptionPopup={setShowDescriptionPopup}/>              
               <CustomAlert
-                displayMsg={markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
+                displayMsg={markerSelected.description != null  && markerSelected.description != undefined ? 
+                  markerSelected.description + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude :
+                  markerSelected.location.name + '\nLongitude : ' + markerSelected.location.longitude + '\nLatitude : ' + markerSelected.location.latitude}
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}
               />
             </>
             : null
           }
-          <StatusBar style="default" />
+          <StatusBar style="default"/>
         </View>
        </SafeAreaView>
     </SafeAreaProvider>
@@ -193,8 +222,11 @@ const styles = StyleSheet.create({
     width: windowWidth,
     height: windowHeight,
     margin: 0
-  },
-  menuButton: {
+  },    
+  backButton: {
+    position: 'absolute',
+    left: 10,
+    top: 10,
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
