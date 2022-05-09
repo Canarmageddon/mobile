@@ -2,9 +2,33 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useQuery, useQueryClient } from "react-query";
+import RNFetchBlob from "rn-fetch-blob";
 import checkStatus from "../utils/checkStatus";
 
 function DetailEtapes() {
+  useEffect(() => {
+    const { config, fs } = RNFetchBlob;
+    let fileDir = fs.dirs.DownloadDir; // this is the download directory. You can check the available directories in the wiki.
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true, // setting it to true will use the device's native download manager and will be shown in the notification bar.
+        notification: true,
+        path: fileDir + "new_file", // this is the path where your downloaded file will live in
+        description: "Downloading file.",
+      },
+    };
+    config(options)
+      .fetch(
+        "GET",
+        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      )
+      .then((res) => {
+        console.log(res);
+        // do some magic here
+      });
+  }, []);
+
   const [selectedStep, setSelectedStep] = useState(null);
   const {
     isLoading: isLoadingPoi,
