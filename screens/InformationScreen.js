@@ -15,7 +15,7 @@ function InformationScreen({ navigation, route }) {
   const [dailyWeather, setDailyWeather] = useState(null);
   useEffect(async () => {
     setWeather(await fetchLiveWeather(7.7345492, 48.5850678));
-    setDailyWeather(await fetchDailyWeather(7.7345492, 48.5850678));
+    //setDailyWeather(await fetchDailyWeather(7.7345492, 48.5850678));
   }, []);
 
   const fetchLiveWeather = async (lon, lat) => {
@@ -33,19 +33,32 @@ function InformationScreen({ navigation, route }) {
     const date = new Date(unixTime * 1000);
     return date.toLocaleTimeString("fr-FR");
   };
+
   const displayLiveWeatherData = (w) => (
-    <View>
-      <Text>{w.weather[0].description}</Text>
-      <Text>Température : {w.main.temp}°c</Text>
-      <Text>Ressenti : {w.main.feels_like}°c</Text>
-      <Text>Humidité : {w.main.humidity}%</Text>
-      <Text>Vitesse du vent : {w.wind.speed} m/s</Text>
-      <Text>Levé du soleil : {convertUnixTimeToLocal(w.sys.sunrise)}</Text>
-      <Text>Couché du soleil : {convertUnixTimeToLocal(w.sys.sunset)}</Text>
-    </View>
+    <>
+      <Text style={styles.textStyle}>{w.name}</Text>
+      <View style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+        <Text style={styles.textStyle}>{w.weather[0].description}</Text>
+        <Image
+          style={styles.tinyLogo}
+          source={{
+            uri: `https://openweathermap.org/img/wn/${w.weather[0].icon}@2x.png`,
+          }}
+        />
+      </View>
+      <Text style={styles.textStyle}>Température : {w.main.temp}°c</Text>
+      <Text style={styles.textStyle}>Ressenti : {w.main.feels_like}°c</Text>
+      <Text style={styles.textStyle}>Humidité : {w.main.humidity}%</Text>
+      <Text style={styles.textStyle}>Vitesse du vent : {w.wind.speed} m/s</Text>
+      <Text style={styles.textStyle}>
+        Levé du soleil : {convertUnixTimeToLocal(w.sys.sunrise)}
+      </Text>
+      <Text style={styles.textStyle}>
+        Couché du soleil : {convertUnixTimeToLocal(w.sys.sunset)}
+      </Text>
+    </>
   );
   const displayDailyWeather = (d, i) => {
-    console.log(i);
     return (
       <View>
         <Text>{d.weather[0].description}</Text>
@@ -59,23 +72,38 @@ function InformationScreen({ navigation, route }) {
     );
   };
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {weather != null ? (
-        <View>
-          <Text>Direct</Text>
-          {displayLiveWeatherData(weather)}
-        </View>
+        <View style={styles.container}>{displayLiveWeatherData(weather)}</View>
       ) : null}
-      {weather != null ? (
+      {/*
+//    météo sur 1 semaine
+   {weather != null ? (
         <View>
           <Text>Jour</Text>
           {dailyWeather?.daily?.map((d, i) => displayDailyWeather(d, i))}
         </View>
-      ) : null}
+      ) : null} */}
     </View>
   );
 }
 
-const styles = StyleSheet.create({});
-
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#9AC4F8",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  tinyLogo: {
+    width: 50,
+    height: 50,
+    alignSelf: "center",
+  },
+  textStyle: {
+    fontSize: 20,
+    alignSelf: "center",
+  },
+});
 export default InformationScreen;
