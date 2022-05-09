@@ -22,7 +22,7 @@ function NewLogBookEntryScreen({ navigation, route }) {
     navigation.dispatch(popAction);
   };
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {/* {isLoading ? <Text style={styles.text}>Loading...</Text> : 
                 <FlatList
                     data={listeTrip}
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     width: "75%",
     borderBottomColor: "black",
     borderBottomWidth: 1,
+    flex: 1,
   },
 });
 
