@@ -46,7 +46,7 @@ function LogbookScreen({ navigation, route }) {
   };
 
   return (
-    <View>
+    <View style={styles.content}>
       {/* {isLoading ? <Text style={styles.text}>Loading...</Text> : 
                 <FlatList
                     data={listeTrip}
@@ -54,6 +54,7 @@ function LogbookScreen({ navigation, route }) {
                     keyExtractor={item => item.id}
                 />
             } */}
+      <View style={styles.content}></View>
       <Button
         title='Ajouter une entrée au journal'
         onPress={() => navigation.navigate("Nouvelle entrée au journal")}
@@ -62,6 +63,10 @@ function LogbookScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+  },
+});
 
 export default LogbookScreen;
