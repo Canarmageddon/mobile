@@ -4,16 +4,17 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import RNFetchBlob from "rn-fetch-blob";
 // import { useTrip } from "../context/tripContext";
 // import { useQuery, useQueryClient } from 'react-query';
+import checkStatus from "../utils/checkStatus";
 
 function PhotosScreen({navigation, route}) {
     const numColumns = 3;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);
     // const [trip] = useTrip();
-    // const { isLoading, isError, error, data: photos } = useQuery('trip' + trip.id + '_photos', () => getPhotos());
+    // const { isLoading, isError, error, data: photos } = useQuery(['tripPhotos', trip.id], () => getPhotos(tripId));
     
     // const getPhotos = () => {
-    //     return fetch('http://vm-26.iutrs.unistra.fr/api/trips/' + trip.id + '/photos')
+    //     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/photos`)
     //       .then(checkStatus)
     //       .then(response => response.json())
     //       .then(data => {

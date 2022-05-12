@@ -2,11 +2,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Animated, Text, View, Pressable } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons'; 
 
-const TravelMenu = (props) => {
-  const slideAnim1 = useRef(new Animated.Value(0)).current
-  const slideAnim2 = useRef(new Animated.Value(0)).current
-  const slideAnim3 = useRef(new Animated.Value(0)).current
-  const slideAnim4 = useRef(new Animated.Value(0)).current
+const TravelMenu = ({navigation}) => {
+  const slideAnim1 = useRef(new Animated.Value(0)).current;
+  const slideAnim2 = useRef(new Animated.Value(0)).current;
+  const slideAnim3 = useRef(new Animated.Value(0)).current;
+  const slideAnim4 = useRef(new Animated.Value(0)).current;
+  const slideAnim5 = useRef(new Animated.Value(0)).current;
   const [isMenuSpread, setIsMenuSpread] = useState(false);
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -36,6 +37,12 @@ const TravelMenu = (props) => {
       duration: 500,
       useNativeDriver: true,  
     }).start();
+
+    Animated.timing(slideAnim5, {
+      toValue: isMenuSpread ? 0 : 275,
+      duration: 600,
+      useNativeDriver: true,  
+    }).start();
   };
 
   const styles = {
@@ -50,6 +57,9 @@ const TravelMenu = (props) => {
     },
     slideTop4: { 
       transform: [{translateY: slideAnim4}]
+    },
+    slideTop5: { 
+      transform: [{translateY: slideAnim5}]
     },
     menuButton: {
       alignItems: 'center',
@@ -79,17 +89,20 @@ const TravelMenu = (props) => {
           <AntDesign name="down" size={30} color="black" style={{top: 3}}/>
         }
       </Pressable>
-      <AnimatedPressable style={[styles.menuButton, styles.slideTop1, {elevation: 8, zIndex: 8}]} onPress={() => props.navigation.navigate('Journal de bord')}>
+      <AnimatedPressable style={[styles.menuButton, styles.slideTop1, {elevation: 8, zIndex: 8}]} onPress={() => navigation.navigate('Journal de bord')}>
         <AntDesign name="book" size={28} color="black"/>
       </AnimatedPressable>
-      <AnimatedPressable style={[styles.menuButton, styles.slideTop2, {elevation: 6, zIndex: 6}]} onPress={() => props.navigation.navigate('Gestion des dépenses')}>
+      <AnimatedPressable style={[styles.menuButton, styles.slideTop2, {elevation: 7, zIndex: 7}]} onPress={() => navigation.navigate('Gestion des dépenses')}>
         <FontAwesome5 name="coins" size={28} color="black"/>
       </AnimatedPressable>
-      <AnimatedPressable style={[styles.menuButton, styles.slideTop3, {elevation: 4, zIndex: 4}]} onPress={() => props.navigation.navigate('Photos')}>
+      <AnimatedPressable style={[styles.menuButton, styles.slideTop3, {elevation: 6, zIndex: 6}]} onPress={() => navigation.navigate('Photos')}>
         <MaterialIcons name="photo-camera" size={28} color="black"/>
       </AnimatedPressable>
-      <AnimatedPressable style={[styles.menuButton, styles.slideTop4, {elevation: 2, zIndex: 2}]} onPress={() => props.navigation.navigate('Informations pratiques')}>
+      <AnimatedPressable style={[styles.menuButton, styles.slideTop4, {elevation: 5, zIndex: 5}]} onPress={() => navigation.navigate('Informations pratiques')}>
         <FontAwesome5 name="info" size={28} color="black"/>
+      </AnimatedPressable>
+      <AnimatedPressable style={[styles.menuButton, styles.slideTop5, {elevation: 4, zIndex: 4}]} onPress={() => navigation.navigate('Membres')}>
+        <MaterialIcons name="groups" size={28} color="black"/>
       </AnimatedPressable>
     </View>
   </>;

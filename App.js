@@ -5,7 +5,6 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { QueryClient, QueryClientProvider } from "react-query";
-
 import { MapScreen } from "./screens/MapScreen";
 import DocumentScreen from "./screens/DocumentScreen";
 import LogbookScreen from "./screens/LogbookScreen";
@@ -15,7 +14,6 @@ import CameraScreen from "./screens/CameraScreen";
 import InformationScreen from "./screens/InformationScreen";
 import ConnexionScreen from "./screens/ConnexionScreen";
 import TripListScreen from "./screens/TripListScreen";
-import NewLogBookEntryScreen from "./screens/NewLogBookEntryScreen";
 
 const screenOptionStyle = {
   headerStyle: {
