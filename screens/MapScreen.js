@@ -88,7 +88,7 @@ function MapScreen({ navigation }) {
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //        console.log(error.message);
       });
   };
 
@@ -107,7 +107,7 @@ function MapScreen({ navigation }) {
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //  console.log(error.message);
       });
   };
 
@@ -116,11 +116,11 @@ function MapScreen({ navigation }) {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
+        //     console.log(data);
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //   console.log(error.message);
       });
   };
 
@@ -232,7 +232,6 @@ function MapScreen({ navigation }) {
       </ShapeSource>
     );
   };
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -254,20 +253,20 @@ function MapScreen({ navigation }) {
               />
             )}
             <Camera zoomLevel={5} centerCoordinate={travelCoordinate[0]} />
-            {isLoadingSteps
+            {/*  {isLoadingSteps
               ? null
               : steps.map((marker, index) => {
                   return (
                     <StepMarker key={index} index={index} marker={marker} />
                   );
-                })}
-            {isLoadingPOI
+                })} */}
+            {/*   {isLoadingPOI
               ? null
               : pointsOfInterest.map((marker, index) => {
                   return (
                     <POIMarker key={index} index={index} marker={marker} />
                   );
-                })}
+                })} */}
             {!stepIsSet || isLoadingTravels
               ? null
               : travels.map((travel, index) => {

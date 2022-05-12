@@ -100,7 +100,7 @@ const TravelMenu = ({ navigation }) => {
             styles.slideTop1,
             { elevation: 10, zIndex: 10 },
           ]}
-          onPress={() => props.navigation.navigate("Journal de bord")}
+          onPress={() => navigation.navigate("Journal de bord")}
         >
           <AntDesign name='book' size={28} color='black' />
         </AnimatedPressable>
@@ -110,7 +110,7 @@ const TravelMenu = ({ navigation }) => {
             styles.slideTop2,
             { elevation: 8, zIndex: 8 },
           ]}
-          onPress={() => props.navigation.navigate("Gestion des dépenses")}
+          onPress={() => navigation.navigate("Gestion des dépenses")}
         >
           <FontAwesome5 name='coins' size={28} color='black' />
         </AnimatedPressable>
@@ -120,7 +120,7 @@ const TravelMenu = ({ navigation }) => {
             styles.slideTop3,
             { elevation: 6, zIndex: 6 },
           ]}
-          onPress={() => props.navigation.navigate("Photos")}
+          onPress={() => navigation.navigate("Photos")}
         >
           <MaterialIcons name='photo-camera' size={28} color='black' />
         </AnimatedPressable>
@@ -130,7 +130,7 @@ const TravelMenu = ({ navigation }) => {
             styles.slideTop4,
             { elevation: 4, zIndex: 4 },
           ]}
-          onPress={() => props.navigation.navigate("Informations pratiques")}
+          onPress={() => navigation.navigate("Informations pratiques")}
         >
           <FontAwesome5 name='info' size={28} color='black' />
         </AnimatedPressable>

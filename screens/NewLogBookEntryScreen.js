@@ -1,35 +1,46 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  Image,
-  Pressable,
-  Button,
-  TextInput,
-} from "react-native";
+import { StyleSheet, View, Button, TextInput } from "react-native";
 import { StackActions } from "@react-navigation/native";
-
-// import { useTrip } from "../context/tripContext";
-// import { useQuery, useQueryClient } from 'react-query';;
-
+import { useTrip } from "../context/tripContext";
+import { useUser } from "../context/userContext";
+import checkStatus from "../utils/checkStatus";
+import { useMutation, useQueryClient } from "react-query";
 function NewLogBookEntryScreen({ navigation, route }) {
-  const [textValue, setTextValue] = useState("");
-  const handlePress = () => {
-    const popAction = StackActions.pop(1);
+  const sendEntry = ({ content, creator, trip }) =>
+    fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries/new`, {
+      method: "POST",
+      headers: {
+        accept: "application/ld+json",
+        "Content-Type": "application/ld+json",
+      },
+      body: JSON.stringify({
+        content,
+        creator,
+        trip,
+      }),
+    }).then((res) => res.json());
 
-    navigation.dispatch(popAction);
+  const queryClient = useQueryClient();
+  const trip = useTrip();
+  const [user, token] = useUser();
+  const [textValue, setTextValue] = useState("");
+  const mutation = useMutation(sendEntry, {
+    onSuccess: (data) => {
+      queryClient.setQueryData(`logBook${trip.id}`, (old) => [...old, data]);
+      const popAction = StackActions.pop(1);
+      navigation.dispatch(popAction);
+    },
+  });
+  const handlePress = () => {
+    mutation.mutate({
+      content: textValue,
+      creator: user.id,
+      trip: trip.id,
+    });
   };
+
   return (
     <View style={{ flex: 1 }}>
-      {/* {isLoading ? <Text style={styles.text}>Loading...</Text> : 
-                <FlatList
-                    data={listeTrip}
-                    renderItem={TripListItem}
-                    keyExtractor={item => item.id}
-                />
-            } */}
       <TextInput
         style={styles.input}
         value={textValue}
