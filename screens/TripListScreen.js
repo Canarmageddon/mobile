@@ -8,36 +8,51 @@ import {
 import React from "react";
 import checkStatus from "../utils/checkStatus";
 // import { useUser } from "../context/userContext";
-// import { useQuery, useQueryClient } from 'react-query';
-// import { useTripUpdate } from "../context/tripContext";
+import { useQuery, useQueryClient } from 'react-query';
+import { useTripUpdate } from "../context/tripContext";
 
 const TripListScreen = ({navigation, route}) => {
     // const [user] = useUser();
-    // const tripUpdate = useTripUpdate();
-    // const queryClient = useQueryClient();
+    const tripUpdate = useTripUpdate();
+    const queryClient = useQueryClient();
 
+    const { isLoading, isError, error, data: listeTrip } = useQuery('listeTrip', () => getTrips());
     // const { isLoading, isError, error, data: listeTrip } = useQuery(['listeTrip', user.id], () => getUserTrips(user.id));
 
-    const getUserTrips = userId => {
-        // return fetch('http://vm-26.iutrs.unistra.fr/api/' + userId +'/trip')
-        //     .then(checkStatus)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         console.log(data);
-        //         queryClient.setQueryData(['listeTrip', user.id], listeTrip);
-        //         return data;
-        //     })  
-        //     .catch(error => {
-        //         console.log(error.message);
-        //     });
+    const getTrips = () => {
+        return fetch('http://vm-26.iutrs.unistra.fr/api/trips')
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => {
+                // console.log(data['hydra:member']);
+                queryClient.setQueryData('listeTrip', listeTrip);
+                return data['hydra:member'];
+            })  
+            .catch(error => {
+                console.log(error.message);
+            });
     }
+
+    // const getUserTrips = userId => {
+    //     return fetch('http://vm-26.iutrs.unistra.fr/api/' + userId +'/trip')
+    //         .then(checkStatus)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log(data['hydra:member']);
+    //             queryClient.setQueryData(['listeTrip', user.id], listeTrip);
+    //             return data['hydra:member'];
+    //         })  
+    //         .catch(error => {
+    //             console.log(error.message);
+    //         });
+    // }
 
     let TripListItem = ({ item: trip }) => {
         return <>                
             <View style={styles.tripButton}>
                 <Button onPress={() => {
-                    // tripUpdate(trip);
-                    navigation.navigate("Mes voyages")
+                    tripUpdate(trip);
+                    navigation.navigate("MapScreen");
                 }} title={trip.name} color={'#00A5C7'}></Button>
             </View>
         </>
@@ -45,18 +60,18 @@ const TripListScreen = ({navigation, route}) => {
 
     return <>
         <View style={styles.containerBorder}>
-            {/* {isLoading ? <Text style={styles.text}>Loading...</Text> : 
+            {isLoading ? <Text style={styles.text}>Loading...</Text> : 
                 <FlatList
                     data={listeTrip}
                     renderItem={TripListItem}
                     keyExtractor={item => item.id}
                 />
-            } */}
-            <View style={styles.tripButton}>
+            }
+            {/* <View style={styles.tripButton}>
                 <Button onPress={() => {
                     navigation.navigate("MapScreen")
                 }} title={'Voyage en Grèce'} color={'#00A5C7'}></Button>
-            </View>
+            </View> */}
         </View>
     </>;
 };

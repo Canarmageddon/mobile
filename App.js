@@ -5,6 +5,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator  } from '@react-navigation/bottom-tabs';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { TripProvider } from "./context/tripContext";
+import { UserProvider } from "./context/userContext";
 
 import { MapScreen } from './screens/MapScreen';
 import DocumentScreen from './screens/DocumentScreen';
@@ -15,6 +17,8 @@ import CameraScreen from './screens/CameraScreen';
 import InformationScreen from './screens/InformationScreen';
 import ConnexionScreen from './screens/ConnexionScreen';
 import TripListScreen from './screens/TripListScreen';
+import AddExpanseScreen from './screens/AddExpanseScreen';
+import MembersScreen from './screens/MembersScreen';
 
 const screenOptionStyle = {
     headerStyle: {
@@ -59,17 +63,23 @@ export default function App() {
     return <>
       <QueryClientProvider client={queryClient}>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="Connexion" screenOptions={screenOptionStyle}>
-              <Stack.Screen name="Connexion" component={ConnexionScreen}/>
-              <Stack.Screen name="Mes voyages" component={TripListScreen}/>
-              <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
-              <Stack.Screen name="Documents" component={DocumentScreen}/>
-              <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>
-              <Stack.Screen name="Journal de bord" component={LogbookScreen}/>
-              <Stack.Screen name="Photos" component={PhotosScreen}/>
-              <Stack.Screen name="Camera" component={CameraScreen} options={{ headerShown: false }}/>
-              <Stack.Screen name="Informations pratiques" component={InformationScreen}/>
-            </Stack.Navigator>
+            <UserProvider>
+              <TripProvider>
+                <Stack.Navigator initialRouteName="Connexion" screenOptions={screenOptionStyle}>
+                  <Stack.Screen name="Connexion" component={ConnexionScreen}/>
+                  <Stack.Screen name="Mes voyages" component={TripListScreen}/>
+                  <Stack.Screen name="MapScreen" component={MapScreen} options={{ headerShown: false }}/>
+                  <Stack.Screen name="Documents" component={DocumentScreen}/>
+                  <Stack.Screen name="Gestion des dépenses" component={ExpansesScreen}/>
+                  <Stack.Screen name="Ajouter une dépense" component={AddExpanseScreen}/>
+                  <Stack.Screen name="Journal de bord" component={LogbookScreen}/>
+                  <Stack.Screen name="Photos" component={PhotosScreen}/>
+                  <Stack.Screen name="Membres" component={MembersScreen}/>
+                  <Stack.Screen name="Camera" component={CameraScreen} options={{ headerShown: false }}/>
+                  <Stack.Screen name="Informations pratiques" component={InformationScreen}/>
+                </Stack.Navigator>
+              </TripProvider>
+            </UserProvider>
           </NavigationContainer>
       </QueryClientProvider>
     </>;
