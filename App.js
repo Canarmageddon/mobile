@@ -14,7 +14,7 @@ import CameraScreen from "./screens/CameraScreen";
 import InformationScreen from "./screens/InformationScreen";
 import ConnexionScreen from "./screens/ConnexionScreen";
 import TripListScreen from "./screens/TripListScreen";
-
+import { PositionProvider } from "./contexts/GeolocationContext";
 const screenOptionStyle = {
   headerStyle: {
     backgroundColor: "#9AC4F8",
