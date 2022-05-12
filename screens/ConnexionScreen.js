@@ -24,7 +24,17 @@ const ConnexionScreen = ({ navigation }) => {
   const connect = (login, password) => {
     // navigation.navigate('Mes voyages');
     // fetch('http://vm-26.iutrs.unistra.fr/api/users/signin', {
-    fetch("http://vm-26.iutrs.unistra.fr/api/users/2")
+    fetch("http://vm-26.iutrs.unistra.fr/api/users/checkCredentials", {
+      method: "POST",
+      headers: {
+        accept: "application/ld+json",
+        "Content-Type": "application/ld+json",
+      },
+      body: JSON.stringify({
+        email: login,
+        password: password,
+      }),
+    })
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
