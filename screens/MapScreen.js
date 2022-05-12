@@ -49,8 +49,6 @@ function MapScreen({ navigation }) {
           error: null,
         });
       });
-      console.log(position);
-      console.log("aaaaaaaaaa");
     }, 100000);
     return () => {
       clearInterval(interval);
@@ -103,7 +101,6 @@ function MapScreen({ navigation }) {
       coordinates: travelCoordinate,
     },
   };
-  console.log(position);
   const startAnimation = (isMarkerSelected) => {
     Animated.timing(slideAnim, {
       toValue: isMarkerSelected ? 0 : menuHeight,
