@@ -50,7 +50,14 @@ function LogbookScreen({ navigation, route }) {
         {!isError &&
           !isLoading &&
           data != undefined &&
-          data.map((text) => <Text>{text.content}</Text>)}
+          data.map((text) => (
+            <>
+              <View style={{ borderColor: "black", borderWidth: 1 }}>
+                <Text>{text.creationDate}</Text>
+                <Text>{text.content}</Text>
+              </View>
+            </>
+          ))}
       </ScrollView>
 
       <View style={styles.content}></View>
