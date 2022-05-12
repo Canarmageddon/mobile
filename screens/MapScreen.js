@@ -1,32 +1,66 @@
 // MapScreen.js
-import React, {useState, useEffect, useRef} from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Animated, StyleSheet, Text, View, Dimensions, Image, Pressable, Button, Modal,} from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { MapView, MarkerView, ShapeSource, Camera, PointAnnotation, SymbolLayer, VectorSource, LineLayer, Callout } from '../MapBox';
-import checkStatus from '../utils/checkStatus';
-import CustomAlert from '../components/CustomAlert';
-import TravelMenu from '../components/TravelMenu';
-import MarkerMenu from '../components/MarkerMenu';
-import { useQuery, useQueryClient } from 'react-query';
+import React, { useState, useEffect, useRef } from "react";
+import { StatusBar } from "expo-status-bar";
+import {
+  Animated,
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  Image,
+  Pressable,
+  Button,
+  Modal,
+} from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  MapView,
+  MarkerView,
+  ShapeSource,
+  Camera,
+  PointAnnotation,
+  SymbolLayer,
+  VectorSource,
+  LineLayer,
+  Callout,
+} from "../MapBox";
+import checkStatus from "../utils/checkStatus";
+import CustomAlert from "../components/CustomAlert";
+import TravelMenu from "../components/TravelMenu";
+import MarkerMenu from "../components/MarkerMenu";
+import { useQuery, useQueryClient } from "react-query";
 import { AntDesign } from '@expo/vector-icons'; 
 import { useTrip } from "../context/tripContext";
-// navigator.geolocation = require('@react-native-community/geolocation');
+navigator.geolocation = require("@react-native-community/geolocation");
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
-function getWindowSize(){
+function getWindowSize() {
   // return "width : " +  windowWidth + ", height : " + windowHeight;
   return "width : 100, height : 50";
 }
 
-function MapScreen({navigation}) {
+function MapScreen({ navigation }) {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setPosition({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          error: null,
+        });
+      });
+    }, 100000);
+    return () => {
+      clearInterval(interval);
+    };
+  });
   const blueMarker = require('../assets/blue_marker.png');
   const trip = useTrip();
   const slideAnim = useRef(new Animated.Value(0)).current
   const menuHeight = Dimensions.get('window').height * 18 / 100;
-
+  const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [markerSelectedType, setMarkerSelectedType] = useState(null);
@@ -40,16 +74,6 @@ function MapScreen({navigation}) {
   const { isLoading: isLoadingPOI, isError: isErrorPOI, error: errorPOI, data: pointsOfInterest } = useQuery(['pointsOfInterest', trip.id], () => getTripPOI(trip.id));
   const { isLoading: isLoadingTravels, isError: isErrorTravels, error: errorTravels, data: travels } = useQuery(['travels', trip.id], () => getTripTravels(trip.id), {enabled: stepIsSet});
 
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition(position => {
-  //     setPosition({
-  //       latitude: position.coords.latitude,
-  //       longitude: position.coords.longitude,
-  //       error: null
-  //     })
-  //   })
-  // }, [])
-
   const getTripPOI = tripId => {
     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/poi`)
       .then(checkStatus)
@@ -61,7 +85,7 @@ function MapScreen({navigation}) {
       .catch(error => {
           console.log(error.message);
       });
-  }
+  };
 
   const getTripSteps = tripId => {
     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/steps`)
@@ -96,15 +120,15 @@ function MapScreen({navigation}) {
     Animated.timing(slideAnim, {
       toValue: isMarkerSelected ? 0 : menuHeight,
       duration: 200,
-      useNativeDriver: true,  
+      useNativeDriver: true,
     }).start(() => {
-      if(!isMarkerSelected){
-        setIsMarkerSelected(false); 
+      if (!isMarkerSelected) {
+        setIsMarkerSelected(false);
         setMarkerSelected(null);
         setMarkerSelectedType(null);
       }
     });
-  }
+  };
 
   const openItemMenu = (type, item) => {
     let initialMarkerSelectedState = isMarkerSelected;
@@ -132,7 +156,7 @@ function MapScreen({navigation}) {
         onSelected={() => {openItemMenu('step', marker)}}
       >
         <Image
-          id={"pointCount"+ index}
+          id={"pointCount" + index}
           source={blueMarker}
           style={{ width: 24, height: 35}}
           onLoad={() => {
@@ -188,7 +212,7 @@ function MapScreen({navigation}) {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
           <MapView
             style={{
@@ -229,7 +253,14 @@ function MapScreen({navigation}) {
           {
             isMarkerSelected && markerSelected ?
             <>
-              <MarkerMenu slideAnim={slideAnim} startAnimation={startAnimation} navigation={navigation} markerSelected={markerSelected} markerSelectedType={markerSelectedType} setShowDescriptionPopup={setShowDescriptionPopup}/>              
+              <MarkerMenu
+                slideAnim={slideAnim}
+                startAnimation={startAnimation}
+                navigation={navigation}
+                markerSelected={markerSelected}
+                markerSelectedType={markerSelectedType}
+                setShowDescriptionPopup={setShowDescriptionPopup}
+              />
               <CustomAlert
                 displayMsg={(markerSelectedType === 'step' ? markerSelected.description : 
                 markerSelectedType === 'poi' ? markerSelected.location.name : 
@@ -243,7 +274,7 @@ function MapScreen({navigation}) {
           }
           <StatusBar style="default"/>
         </View>
-       </SafeAreaView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
@@ -251,9 +282,9 @@ function MapScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
     width: windowWidth,
     height: windowHeight,
     margin: 0
@@ -266,12 +297,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 50,
     width: 50,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginTop: 5,
-    borderColor: 'black',
+    borderColor: "black",
     borderRadius: 25,
     borderWidth: 1,
-  }
+  },
 });
 
-export {getWindowSize, MapScreen};
+export { getWindowSize, MapScreen };
