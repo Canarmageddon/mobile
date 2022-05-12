@@ -8,13 +8,14 @@ import {
   Pressable,
   Button,
 } from "react-native";
-
+import { usePosition } from "../contexts/GeolocationContext";
 function InformationScreen({ navigation, route }) {
+  const [position, setPosition] = usePosition();
   const weatherKey = "812229d685d8b17aede0cff9dd71990a";
   const [weather, setWeather] = useState(null);
   const [dailyWeather, setDailyWeather] = useState(null);
   useEffect(async () => {
-    setWeather(await fetchLiveWeather(7.7345492, 48.5850678));
+    setWeather(await fetchLiveWeather(position.longitude, position.latitude));
     //setDailyWeather(await fetchDailyWeather(7.7345492, 48.5850678));
   }, []);
 

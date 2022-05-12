@@ -24,6 +24,7 @@ import {
   LineLayer,
   Callout,
 } from "../MapBox";
+import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import CustomAlert from "../components/CustomAlert";
 import TravelMenu from "../components/TravelMenu";
@@ -40,21 +41,7 @@ function getWindowSize() {
 }
 
 function MapScreen({ navigation }) {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setPosition({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          error: null,
-        });
-      });
-    }, 100000);
-    return () => {
-      clearInterval(interval);
-    };
-  });
-
+  const [position, setPosition] = usePosition();
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
@@ -64,7 +51,6 @@ function MapScreen({ navigation }) {
   const [isImageCharged, setIsImageCharged] = useState(false);
   const menuHeight = (Dimensions.get("window").height * 18) / 100;
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const [position, setPosition] = useState({});
 
   const {
     isLoading,
@@ -149,7 +135,7 @@ function MapScreen({ navigation }) {
       </PointAnnotation>
     );
   };
-
+  console.log(position);
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -163,11 +149,13 @@ function MapScreen({ navigation }) {
             localizeLabels={true}
             compassViewPosition={0}
           >
-            <PointAnnotation
-              key={"position"}
-              id={"position"}
-              coordinate={[position.longitude, position.latitude]}
-            />
+            {position != null && (
+              <PointAnnotation
+                key={"position"}
+                id={"position"}
+                coordinate={[position.longitude, position.latitude]}
+              />
+            )}
             <Camera zoomLevel={5} centerCoordinate={travelCoordinate[0]} />
             {isLoading
               ? null
