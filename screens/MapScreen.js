@@ -32,7 +32,6 @@ import MarkerMenu from "../components/MarkerMenu";
 import { useQuery, useQueryClient } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
-navigator.geolocation = require("@react-native-community/geolocation");
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -44,7 +43,6 @@ function getWindowSize() {
 
 function MapScreen({ navigation }) {
   const [position, setPosition] = usePosition();
-
   const blueMarker = require("../assets/blue_marker.png");
   const trip = useTrip();
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -88,7 +86,7 @@ function MapScreen({ navigation }) {
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //        console.log(error.message);
       });
   };
 
@@ -107,7 +105,7 @@ function MapScreen({ navigation }) {
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //  console.log(error.message);
       });
   };
 
@@ -116,11 +114,11 @@ function MapScreen({ navigation }) {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
+        //     console.log(data);
         return data;
       })
       .catch((error) => {
-        console.log(error.message);
+        //   console.log(error.message);
       });
   };
 
@@ -232,7 +230,6 @@ function MapScreen({ navigation }) {
       </ShapeSource>
     );
   };
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
