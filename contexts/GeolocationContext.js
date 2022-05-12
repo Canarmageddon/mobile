@@ -4,7 +4,7 @@ export function usePosition() {
   return useContext(PositionContext);
 }
 export function PositionProvider({ children }) {
-  const getPosition = () =>
+  const getPosition = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       setPosition({
         latitude: position.coords.latitude,
@@ -12,15 +12,16 @@ export function PositionProvider({ children }) {
         error: null,
       });
     });
+  };
   useEffect(() => {
     getPosition();
     const interval = setInterval(() => {
       getPosition();
-    }, 60000);
+    }, 60000000000000000000);
     return () => {
       clearInterval(interval);
     };
-  });
+  }, []);
   const [position, setPosition] = useState(null);
   return (
     <PositionContext.Provider value={[position, setPosition]}>

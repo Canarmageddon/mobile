@@ -135,7 +135,6 @@ function MapScreen({ navigation }) {
       </PointAnnotation>
     );
   };
-  console.log(position);
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
