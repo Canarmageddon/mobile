@@ -70,7 +70,12 @@ const MarkerMenu = ({slideAnim, startAnimation, navigation, markerSelected, mark
     },
   }
 
-  const menuBackgroundColor = markerSelectedType === 'step' ? '#87CEFA' : '#ff2225';
+  const menuBackgroundColor = markerSelectedType === 'step' ? '#87CEFA' : 
+                              markerSelectedType === 'poi' ? '#ff2225' :
+                              markerSelectedType === 'travel' ? '#34c924' : null;
+  const itemTitle = markerSelectedType === 'step' ? markerSelected.description : 
+                    markerSelectedType === 'poi' ? markerSelected.location.name : 
+                    markerSelectedType === 'travel' ? `Trajet de ${markerSelected.start.id} à ${markerSelected.end.id}` : null;
 
   return <>
     <Animated.View style={[styles.menuContainer, styles.slide]}>
@@ -81,7 +86,7 @@ const MarkerMenu = ({slideAnim, startAnimation, navigation, markerSelected, mark
         </View>
         <View style={[styles.markerMenu, {backgroundColor: menuBackgroundColor}]}>
             <View style={styles.titleContainer}>
-                <Text style={styles.title}>{markerSelectedType === 'step' ? markerSelected.description : markerSelected.location.name }</Text>
+                <Text style={styles.title}>{itemTitle}</Text>
             </View>
             <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                 <View style={{width: '40%'}}>

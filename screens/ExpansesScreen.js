@@ -16,7 +16,7 @@ function ExpansesScreen({navigation}) {
     const [balanceIsSet, setBalanceIsSet] = useState(false);
 
     const { isLoading: isLoadingUsers, isError: isErrorUsers, error: errorUsers, data: users } = useQuery('users', () => getUsers());
-    const { isLoading, isError, error, data: expanses } = useQuery(['tripExpanses', trip.id], () => getExpanses(trip.id),  {enabled: balanceIsSet});
+    const { isLoading, isError, error, data: expanses } = useQuery(['tripExpanses', trip.id], () => getExpanses(trip.id), {enabled: balanceIsSet});
 
     const getUsers = () => {       
         return fetch(`http://vm-26.iutrs.unistra.fr/api/users`)

@@ -23,10 +23,13 @@ function MembersScreen({navigation}) {
     }
 
     const MemberListItem = ({ item: member }) => {
+        const role = member.role === 'admin' ? 'Admin' : member.role === 'editor' ? 'Editeur' : member.role === 'guest' ? 'Invité' : 'Intrus';
+
         return <>
             <View style={styles.containerBorder}>
                 <View style={styles.membre}>
-                    <Text style={{color: '#fefefe'}}>{member.firstName + ' ' + member.lastName}</Text>
+                    <Text style={[styles.text, {fontWeight: 'bold'}]}>{member.user.firstName + ' ' + member.user.lastName}</Text>
+                    <Text style={styles.text}>{role}</Text>
                 </View>
             </View>
         </>
@@ -60,6 +63,10 @@ const styles = StyleSheet.create({
     view: {
         margin: 5,
     },
+    text: {
+        color: '#fefefe',
+        margin: 5
+    },
     button: {
         margin: 10,
         borderWidth: 1, 
@@ -76,6 +83,8 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         backgroundColor: "#2c75ff",
         padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     }
 });
 
