@@ -2,27 +2,29 @@ import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Pressable, FlatList, Image, Modal, Alert } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import RNFetchBlob from "rn-fetch-blob";
-// import { useTrip } from "../context/tripContext";
-// import { useQuery, useQueryClient } from 'react-query';
+import { useTrip } from "../context/tripContext";
+import { useQuery, useQueryClient } from 'react-query';
 import checkStatus from "../utils/checkStatus";
 
 function PhotosScreen({navigation, route}) {
     const numColumns = 3;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);
-    // const [trip] = useTrip();
-    // const { isLoading, isError, error, data: photos } = useQuery(['tripPhotos', trip.id], () => getPhotos(tripId));
+    const trip = useTrip();
+    // const { isLoading, isError, error, data: photos } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
     
-    // const getPhotos = () => {
-    //     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/photos`)
-    //       .then(checkStatus)
-    //       .then(response => response.json())
-    //       .then(data => {
-    //           return data;
-    //       })  
-    //       .catch(error => {
-    //           console.log(error.message);
-    //       });
+    // const getPhotos = tripId => {
+    //     return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
+    //         // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
+    //         .then(checkStatus)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log(data["hydra:member"]);
+    //             return data["hydra:member"];
+    //         })  
+    //         .catch(error => {
+    //             console.log(error.message);
+    //         });
     // }
     const photos = [
         {id: 0, url: 'https://cdn.futura-sciences.com/buildsv6/images/wide1920/6/5/2/652a7adb1b_98148_01-intro-773.jpg'},
@@ -100,13 +102,17 @@ function PhotosScreen({navigation, route}) {
         <View style={styles.mainContainer}>
             <View style={styles.photosListContainer}>
                 {/* {isLoading ? <Text style={styles.text}>Loading...</Text> :  */}
+                    {/* photos.length > 0 ? */}
                     <FlatList
                         data={photos}
                         renderItem={PhotosListItem}
                         keyExtractor={item => item.id}
                         numColumns={numColumns}
-                    />
-                {/* } */}
+                    /> 
+                    {/* // <Text style={styles.text}>Y a une photo normalement</Text>
+                    : 
+                    <Text style={styles.text}>Aucune photo n'est associée à ce voyage.</Text>
+                } */}
             </View>
             <View style={styles.buttonContainer}>
                 <Pressable onPress={() => navigation.navigate('Camera')} style={styles.button}>

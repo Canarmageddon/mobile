@@ -7,15 +7,22 @@ import {
 } from "react-native";
 import React, {useState, useEffect} from "react";
 import {Camera} from 'expo-camera'
-// import { useQueryClient, useMutation } from 'react-query';
-// import { useTrip } from "../context/tripContext";
+import { useQueryClient, useMutation } from 'react-query';
+import { useTrip } from "../context/tripContext";
+import { useUser } from "../context/userContext";
 import checkStatus from "../utils/checkStatus";
 import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons'; 
+import RNFetchBlob from "rn-fetch-blob";
+import RNFS from 'react-native-fs';
+// const RNFS = require('react-native-fs');
 
 const CameraScreen = ({route, navigation}) => {
-    const [startCamera,setStartCamera] = React.useState(false)
-    const [previewVisible, setPreviewVisible] = useState(false)
-    const [capturedImage, setCapturedImage] = useState(null)
+    const trip = useTrip();
+    const [user, token] = useUser();
+    const queryClient = useQueryClient();
+    const [startCamera,setStartCamera] = React.useState(false);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [capturedImage, setCapturedImage] = useState(null);
     let camera = Camera;
 
     const __startCamera = async () => {
@@ -38,8 +45,26 @@ const CameraScreen = ({route, navigation}) => {
         setCapturedImage(photo);
     }
 
-    const __savePhoto = () => {
-        // addItem.mutate(photoId)
+    const __savePhoto = (photo) => {
+        const name = photo.uri.substring(photo.uri.lastIndexOf('/') + 1);
+        const extension = (Platform.OS === 'android')? 'file://': '';
+        const path = `${extension}${RNFetchBlob.fs.dirs.DownloadDir}/${name}`; //U can use any format png, jpeg, jpg
+        
+        RNFS.exists(photo.uri).then(exists => {
+            RNFS.copyFile(photo.uri, path).then(() => {
+                RNFS.exists(path).then(exists => {
+                    photo.uri = path;
+                    addItem.mutate(photo);
+                })
+                alert('La photo a été sauvegardé dans vos téléchargements.'); 
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        })
+        .catch(error => {
+            console.log(error);
+        });
     }
 
     const __retakePicture = () => {
@@ -52,36 +77,45 @@ const CameraScreen = ({route, navigation}) => {
         navigation.goBack();
     }
 
-    // const addItem = useMutation((photoId) => addPhoto(photoId), {
-    //     onSuccess: item => queryClient.setQueryData(
-    //         ['tripPhotos', trip.id],
-    //         items => [...items, item]
-    //     )
-    // });
+    const addItem = useMutation((photo) => addPhoto(photo), {
+        onSuccess: item => queryClient.setQueryData(
+            ['tripPictures', trip.id],
+            items => [...items, item]
+        )
+    });
 
-    // const addPhoto = (photoId) => {
-    //     return fetch('http://vm-26.iutrs.unistra.fr/api/trip/' + trip.id + '/photos/new', {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify({idPhoto: photoId})
-    //     })
-    //     .then(checkStatus)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         navigation.navigate('Photos');
-    //         return data;
-    //     })        
-    //     .catch(error => {
-    //         alert(error.message);
-    //         console.log(error.message);
-    //     });
-    // }
+    const addPhoto = (photo) => {
+        const form = new FormData();
+
+        form.append('file', {
+            uri: photo.uri,
+            type: 'image/jpg',
+            name: photo.uri.substring(photo.uri.lastIndexOf('/') + 1),
+        });
+        form.append('creator', user.id);
+        form.append('trip', trip.id);
+
+        return fetch('http://vm-26.iutrs.unistra.fr/api/pictures', {
+            method: "POST",
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            body: form
+        })
+        .then(checkStatus)
+        .then(response => response.json())
+        .then(data => { //A FAIRE : Essayer de supprimer la photo après l'avoir envoyer, pour qu'on puisse ensuite la téléchargement proprement depuis la visualisateur
+            console.log(data);
+            navigation.navigate('Photos');
+            return data;
+        })        
+        .catch(error => {
+            // alert(error.message);
+            console.log(error);
+        });
+    }
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
-        console.log(photo);
         return (
             <View style={{backgroundColor: 'transparent', flex: 1, width: '100%', height: '100%'}}>
                 <ImageBackground source={{uri: photo && photo.uri}} style={{flex: 1}}>
@@ -92,7 +126,7 @@ const CameraScreen = ({route, navigation}) => {
                                     Reprendre
                                 </Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={savePhoto} style={{width: 130, height: 40, alignItems: 'center', borderRadius: 4}}>
+                            <TouchableOpacity onPress={() => savePhoto(photo)} style={{width: 130, height: 40, alignItems: 'center', borderRadius: 4}}>
                                 <Text style={{color: '#fff', fontSize: 20}}>
                                     Sauvegarder
                                 </Text>
