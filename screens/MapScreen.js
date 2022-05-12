@@ -32,7 +32,6 @@ import MarkerMenu from "../components/MarkerMenu";
 import { useQuery, useQueryClient } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
-navigator.geolocation = require("@react-native-community/geolocation");
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -44,7 +43,6 @@ function getWindowSize() {
 
 function MapScreen({ navigation }) {
   const [position, setPosition] = usePosition();
-
   const blueMarker = require("../assets/blue_marker.png");
   const trip = useTrip();
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -253,20 +251,20 @@ function MapScreen({ navigation }) {
               />
             )}
             <Camera zoomLevel={5} centerCoordinate={travelCoordinate[0]} />
-            {/*  {isLoadingSteps
+            {isLoadingSteps
               ? null
               : steps.map((marker, index) => {
                   return (
                     <StepMarker key={index} index={index} marker={marker} />
                   );
-                })} */}
-            {/*   {isLoadingPOI
+                })}
+            {isLoadingPOI
               ? null
               : pointsOfInterest.map((marker, index) => {
                   return (
                     <POIMarker key={index} index={index} marker={marker} />
                   );
-                })} */}
+                })}
             {!stepIsSet || isLoadingTravels
               ? null
               : travels.map((travel, index) => {
