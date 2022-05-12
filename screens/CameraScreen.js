@@ -8,6 +8,7 @@ import {
 import React, {useState, useEffect} from "react";
 import {Camera} from 'expo-camera'
 // import { useQueryClient, useMutation } from 'react-query';
+// import { useTrip } from "../context/tripContext";
 import checkStatus from "../utils/checkStatus";
 import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons'; 
 
@@ -38,7 +39,7 @@ const CameraScreen = ({route, navigation}) => {
     }
 
     const __savePhoto = () => {
-        // addItem.mutate({photoId: route.params.photo.id, userId: route.params.user.id})
+        // addItem.mutate(photoId)
     }
 
     const __retakePicture = () => {
@@ -51,26 +52,26 @@ const CameraScreen = ({route, navigation}) => {
         navigation.goBack();
     }
 
-    // const addItem = useMutation(({photoId, userId}) => createPhoto(photoId, userId), {
+    // const addItem = useMutation((photoId) => addPhoto(photoId), {
     //     onSuccess: item => queryClient.setQueryData(
-    //         ['colocPhotosEntities', coloc.id],
+    //         ['tripPhotos', trip.id],
     //         items => [...items, item]
     //     )
     // });
 
-    // const createPhoto = (photoId, userId) => {
-    //     return fetch('http://sterne.iutrs.unistra.fr:8080/api/coloc/newPhoto', {
+    // const addPhoto = (photoId) => {
+    //     return fetch('http://vm-26.iutrs.unistra.fr/api/trip/' + trip.id + '/photos/new', {
     //         method: "POST",
     //         headers: {
     //             "Content-Type": "application/json"
     //         },
-    //         body: JSON.stringify({idPhoto: photoId, creator: userId})
+    //         body: JSON.stringify({idPhoto: photoId})
     //     })
     //     .then(checkStatus)
     //     .then(response => response.json())
     //     .then(data => {
     //         console.log(data);
-    //         navigation.navigate('Liste Photos');
+    //         navigation.navigate('Photos');
     //         return data;
     //     })        
     //     .catch(error => {
@@ -80,6 +81,7 @@ const CameraScreen = ({route, navigation}) => {
     // }
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
+        console.log(photo);
         return (
             <View style={{backgroundColor: 'transparent', flex: 1, width: '100%', height: '100%'}}>
                 <ImageBackground source={{uri: photo && photo.uri}} style={{flex: 1}}>

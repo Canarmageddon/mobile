@@ -30,6 +30,8 @@ import CustomAlert from "../components/CustomAlert";
 import TravelMenu from "../components/TravelMenu";
 import MarkerMenu from "../components/MarkerMenu";
 import { useQuery, useQueryClient } from "react-query";
+import { AntDesign } from "@expo/vector-icons";
+import { useTrip } from "../context/tripContext";
 navigator.geolocation = require("@react-native-community/geolocation");
 
 const windowWidth = Dimensions.get("window").width;
@@ -42,36 +44,47 @@ function getWindowSize() {
 
 function MapScreen({ navigation }) {
   const [position, setPosition] = usePosition();
+
+  const blueMarker = require("../assets/blue_marker.png");
+  const trip = useTrip();
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const menuHeight = (Dimensions.get("window").height * 18) / 100;
   const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [markerSelectedType, setMarkerSelectedType] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
-  const blueMarker = require("../assets/blue_marker.png");
   const [isImageCharged, setIsImageCharged] = useState(false);
-  const menuHeight = (Dimensions.get("window").height * 18) / 100;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const [stepIsSet, setStepIsSet] = useState(false);
+  const [centerCoordinate, setCenterCoordinate] = useState([0, 0]);
 
   const {
-    isLoading,
-    isError,
-    error,
-    data: trip,
-  } = useQuery("trip", () => getTrip());
+    isLoading: isLoadingSteps,
+    isError: isErrorSteps,
+    error: errorSteps,
+    data: steps,
+  } = useQuery(["steps", trip.id], () => getTripSteps(trip.id));
+  const {
+    isLoading: isLoadingPOI,
+    isError: isErrorPOI,
+    error: errorPOI,
+    data: pointsOfInterest,
+  } = useQuery(["pointsOfInterest", trip.id], () => getTripPOI(trip.id));
+  const {
+    isLoading: isLoadingTravels,
+    isError: isErrorTravels,
+    error: errorTravels,
+    data: travels,
+  } = useQuery(["travels", trip.id], () => getTripTravels(trip.id), {
+    enabled: stepIsSet,
+  });
 
-  const getTrip = () => {
-    return fetch("http://vm-26.iutrs.unistra.fr/api/trips/1")
+  const getTripPOI = (tripId) => {
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/poi`)
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        let travelCoordinates = [];
-        data.steps.map((step) =>
-          travelCoordinates.push([
-            step.location.longitude,
-            step.location.latitude,
-          ]),
-        );
-        setTravelCoordinate(travelCoordinates);
+        // console.log(data);
         return data;
       })
       .catch((error) => {
@@ -79,14 +92,38 @@ function MapScreen({ navigation }) {
       });
   };
 
-  const geoJsonFeature = {
-    type: "Feature",
-    properties: {},
-    geometry: {
-      type: "LineString",
-      coordinates: travelCoordinate,
-    },
+  const getTripSteps = (tripId) => {
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/steps`)
+      .then(checkStatus)
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log(data);
+        setStepIsSet(true);
+        setCenterCoordinate([
+          data[0].location.longitude,
+          data[0].location.latitude,
+        ]);
+
+        return data;
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
+
+  const getTripTravels = (tripId) => {
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/travels`)
+      .then(checkStatus)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        return data;
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
   const startAnimation = (isMarkerSelected) => {
     Animated.timing(slideAnim, {
       toValue: isMarkerSelected ? 0 : menuHeight,
@@ -101,7 +138,23 @@ function MapScreen({ navigation }) {
     });
   };
 
-  const CustomMarker = ({ index, marker }) => {
+  const openItemMenu = (type, item) => {
+    let initialMarkerSelectedState = isMarkerSelected;
+    let markerIsTheSame =
+      JSON.stringify(markerSelected) === JSON.stringify(item);
+    if (!initialMarkerSelectedState) {
+      startAnimation(true);
+    }
+    if (!markerIsTheSame) {
+      setIsMarkerSelected(true);
+      setMarkerSelected(item);
+      setMarkerSelectedType(type);
+    } else {
+      startAnimation(!initialMarkerSelectedState);
+    }
+  };
+
+  const StepMarker = ({ index, marker }) => {
     return (
       <PointAnnotation
         id={"step-" + index}
@@ -109,25 +162,13 @@ function MapScreen({ navigation }) {
         coordinate={[marker.location.longitude, marker.location.latitude]}
         anchor={{ x: 0.5, y: 1 }}
         onSelected={() => {
-          let initialMarkerSelectedState = isMarkerSelected;
-          let markerIsTheSame =
-            JSON.stringify(markerSelected) === JSON.stringify(marker);
-          if (!initialMarkerSelectedState) {
-            startAnimation(true);
-          }
-          if (!markerIsTheSame) {
-            setIsMarkerSelected(true);
-            setMarkerSelected(marker);
-            setMarkerSelectedType("step");
-          } else {
-            startAnimation(!initialMarkerSelectedState);
-          }
+          openItemMenu("step", marker);
         }}
       >
         <Image
           id={"pointCount" + index}
           source={blueMarker}
-          style={{ width: 28, height: 40 }}
+          style={{ width: 24, height: 35 }}
           onLoad={() => {
             setIsImageCharged(true);
           }}
@@ -135,6 +176,63 @@ function MapScreen({ navigation }) {
       </PointAnnotation>
     );
   };
+
+  const POIMarker = ({ index, marker }) => {
+    return (
+      <PointAnnotation
+        key={"point-of-interest-" + index}
+        id={"point-of-interest-" + index}
+        coordinate={[marker.location.longitude, marker.location.latitude]}
+        onSelected={() => {
+          openItemMenu("poi", marker);
+        }}
+      />
+    );
+  };
+
+  const Travel = ({ index, travel, steps }) => {
+    let locationStart, locationEnd;
+
+    steps.map((step) => {
+      if (step.id === travel.start.id) {
+        locationStart = [step.location.longitude, step.location.latitude];
+      } else if (step.id === travel.end.id) {
+        locationEnd = [step.location.longitude, step.location.latitude];
+      }
+    });
+
+    const geoJsonFeature = {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: [locationStart, locationEnd],
+      },
+    };
+
+    return (
+      <ShapeSource
+        key={index}
+        id={`route-${index}`}
+        shape={geoJsonFeature}
+        onPress={() => {
+          openItemMenu("travel", travel);
+        }}
+      >
+        <LineLayer
+          id={`route-layer-${index}`}
+          style={{
+            lineColor: "steelblue",
+            lineWidth: 4,
+            lineJoin: "round",
+            lineCap: "round",
+          }}
+          layerIndex={200}
+        />
+      </ShapeSource>
+    );
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -156,56 +254,39 @@ function MapScreen({ navigation }) {
               />
             )}
             <Camera zoomLevel={5} centerCoordinate={travelCoordinate[0]} />
-            {isLoading
+            {isLoadingSteps
               ? null
-              : trip.steps.map((marker, index) => {
+              : steps.map((marker, index) => {
                   return (
-                    <CustomMarker key={index} index={index} marker={marker} />
+                    <StepMarker key={index} index={index} marker={marker} />
                   );
                 })}
-            {isLoading
+            {isLoadingPOI
               ? null
-              : trip.pointsOfInterest.map((marker, index) => {
+              : pointsOfInterest.map((marker, index) => {
                   return (
-                    <PointAnnotation
-                      key={"point-of-interest-" + index}
-                      id={"point-of-interest-" + index}
-                      coordinate={[
-                        marker.location.longitude,
-                        marker.location.latitude,
-                      ]}
-                      onSelected={() => {
-                        let initialMarkerSelectedState = isMarkerSelected;
-                        let markerIsTheSame =
-                          JSON.stringify(markerSelected) ===
-                          JSON.stringify(marker);
-                        if (!initialMarkerSelectedState) {
-                          startAnimation(true);
-                        }
-                        if (!markerIsTheSame) {
-                          setIsMarkerSelected(true);
-                          setMarkerSelected(marker);
-                          setMarkerSelectedType("pointOfInterest");
-                        } else {
-                          startAnimation(!initialMarkerSelectedState);
-                        }
-                      }}
+                    <POIMarker key={index} index={index} marker={marker} />
+                  );
+                })}
+            {!stepIsSet || isLoadingTravels
+              ? null
+              : travels.map((travel, index) => {
+                  return (
+                    <Travel
+                      key={index}
+                      index={index}
+                      travel={travel}
+                      steps={steps}
                     />
                   );
                 })}
-            <ShapeSource id='route-source' shape={geoJsonFeature}>
-              <LineLayer
-                id='route-layer'
-                style={{
-                  lineColor: "steelblue",
-                  lineWidth: 4,
-                  lineJoin: "round",
-                  lineCap: "round",
-                }}
-                layerIndex={100}
-              />
-            </ShapeSource>
           </MapView>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <AntDesign name='arrowleft' size={30} color='black' />
+          </Pressable>
           <TravelMenu navigation={navigation} />
           {isMarkerSelected && markerSelected ? (
             <>
@@ -219,11 +300,19 @@ function MapScreen({ navigation }) {
               />
               <CustomAlert
                 displayMsg={
-                  markerSelected.description +
-                  "\nLongitude : " +
-                  markerSelected.location.longitude +
-                  "\nLatitude : " +
-                  markerSelected.location.latitude
+                  (markerSelectedType === "step"
+                    ? markerSelected.description
+                    : markerSelectedType === "poi"
+                    ? markerSelected.location.name
+                    : markerSelectedType === "travel"
+                    ? "Durée : " + markerSelected.duration
+                    : null) +
+                  (markerSelectedType !== "travel"
+                    ? "\nLongitude : " +
+                      markerSelected.location.longitude +
+                      "\nLatitude : " +
+                      markerSelected.location.latitude
+                    : "  ")
                 }
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}
@@ -247,7 +336,10 @@ const styles = StyleSheet.create({
     height: windowHeight,
     margin: 0,
   },
-  menuButton: {
+  backButton: {
+    position: "absolute",
+    left: 10,
+    top: 10,
     alignItems: "center",
     justifyContent: "center",
     height: 50,

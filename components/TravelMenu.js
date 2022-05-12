@@ -2,11 +2,12 @@ import React, { useRef, useEffect, useState } from "react";
 import { Animated, Text, View, Pressable } from "react-native";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 
-const TravelMenu = (props) => {
+const TravelMenu = ({ navigation }) => {
   const slideAnim1 = useRef(new Animated.Value(0)).current;
   const slideAnim2 = useRef(new Animated.Value(0)).current;
   const slideAnim3 = useRef(new Animated.Value(0)).current;
   const slideAnim4 = useRef(new Animated.Value(0)).current;
+  const slideAnim5 = useRef(new Animated.Value(0)).current;
   const [isMenuSpread, setIsMenuSpread] = useState(false);
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -36,6 +37,12 @@ const TravelMenu = (props) => {
       duration: 500,
       useNativeDriver: true,
     }).start();
+
+    Animated.timing(slideAnim5, {
+      toValue: isMenuSpread ? 0 : 275,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
   };
 
   const styles = {
@@ -50,6 +57,9 @@ const TravelMenu = (props) => {
     },
     slideTop4: {
       transform: [{ translateY: slideAnim4 }],
+    },
+    slideTop5: {
+      transform: [{ translateY: slideAnim5 }],
     },
     menuButton: {
       alignItems: "center",

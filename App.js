@@ -5,7 +5,6 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { QueryClient, QueryClientProvider } from "react-query";
-
 import { MapScreen } from "./screens/MapScreen";
 import DocumentScreen from "./screens/DocumentScreen";
 import LogbookScreen from "./screens/LogbookScreen";
