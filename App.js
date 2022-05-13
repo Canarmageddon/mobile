@@ -9,11 +9,13 @@ import { MapScreen } from "./screens/MapScreen";
 import DocumentScreen from "./screens/DocumentScreen";
 import LogbookScreen from "./screens/LogbookScreen";
 import ExpansesScreen from "./screens/ExpansesScreen";
+import AddExpanseScreen from "./screens/AddExpanseScreen";
 import PhotosScreen from "./screens/PhotosScreen";
 import CameraScreen from "./screens/CameraScreen";
 import InformationScreen from "./screens/InformationScreen";
 import ConnexionScreen from "./screens/ConnexionScreen";
 import TripListScreen from "./screens/TripListScreen";
+import MembersScreen from "./screens/MembersScreen";
 import { PositionProvider } from "./contexts/GeolocationContext";
 import NewLogBookEntryScreen from "./screens/NewLogBookEntryScreen";
 import { UserProvider } from "./context/userContext";
@@ -82,6 +84,10 @@ export default function App() {
                     component={ExpansesScreen}
                   />
                   <Stack.Screen
+                    name='Ajouter une dépense'
+                    component={AddExpanseScreen}
+                  />
+                  <Stack.Screen
                     name='Journal de bord'
                     component={LogbookScreen}
                   />
@@ -94,6 +100,10 @@ export default function App() {
                   <Stack.Screen
                     name='Informations pratiques'
                     component={InformationScreen}
+                  />
+                  <Stack.Screen
+                    name='Membres'
+                    component={MembersScreen}
                   />
                   <Stack.Screen
                     name='Nouvelle entrée au journal'

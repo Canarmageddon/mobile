@@ -108,7 +108,7 @@ const TravelMenu = ({ navigation }) => {
           style={[
             styles.menuButton,
             styles.slideTop2,
-            { elevation: 8, zIndex: 8 },
+            { elevation: 9, zIndex: 9 },
           ]}
           onPress={() => navigation.navigate("Gestion des dépenses")}
         >
@@ -118,7 +118,7 @@ const TravelMenu = ({ navigation }) => {
           style={[
             styles.menuButton,
             styles.slideTop3,
-            { elevation: 6, zIndex: 6 },
+            { elevation: 8, zIndex: 8 },
           ]}
           onPress={() => navigation.navigate("Photos")}
         >
@@ -128,11 +128,21 @@ const TravelMenu = ({ navigation }) => {
           style={[
             styles.menuButton,
             styles.slideTop4,
-            { elevation: 4, zIndex: 4 },
+            { elevation: 7, zIndex: 7 },
           ]}
           onPress={() => navigation.navigate("Informations pratiques")}
         >
           <FontAwesome5 name='info' size={28} color='black' />
+        </AnimatedPressable>
+        <AnimatedPressable
+          style={[
+            styles.menuButton,
+            styles.slideTop5,
+            { elevation: 6, zIndex: 6 },
+          ]}
+          onPress={() => navigation.navigate("Membres")}
+        >
+          <MaterialIcons name='groups' size={28} color='black' />
         </AnimatedPressable>
       </View>
     </>

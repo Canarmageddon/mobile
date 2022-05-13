@@ -11,21 +11,23 @@ function PhotosScreen({navigation, route}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);
     const trip = useTrip();
-    // const { isLoading, isError, error, data: photos } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
+    const { isLoading, isError, error, data: photosTrip } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
     
-    // const getPhotos = tripId => {
-    //     return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
-    //         // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
-    //         .then(checkStatus)
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             console.log(data["hydra:member"]);
-    //             return data["hydra:member"];
-    //         })  
-    //         .catch(error => {
-    //             console.log(error.message);
-    //         });
-    // }
+    const getPhotos = tripId => {
+        return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
+            // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data["hydra:member"]);
+                // return data["hydra:member"];
+                return [];
+            })  
+            .catch(error => {
+                console.log(error.message);
+            });
+    }
+
     const photos = [
         {id: 0, url: 'https://cdn.futura-sciences.com/buildsv6/images/wide1920/6/5/2/652a7adb1b_98148_01-intro-773.jpg'},
         {id: 1, url: 'https://jardinage.lemonde.fr/images/dossiers/2019-09/mandarin-1-083912.jpg'},

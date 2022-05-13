@@ -250,7 +250,10 @@ function MapScreen({ navigation }) {
                 coordinate={[position.longitude, position.latitude]}
               />
             )}
-            <Camera zoomLevel={5} centerCoordinate={travelCoordinate[0]} />
+            <Camera 
+              zoomLevel={5} 
+              centerCoordinate={[centerCoordinate[0], centerCoordinate[1]]}
+            />
             {isLoadingSteps
               ? null
               : steps.map((marker, index) => {
