@@ -17,7 +17,7 @@ export function PositionProvider({ children }) {
     getPosition();
     const interval = setInterval(() => {
       getPosition();
-    }, 60000000000000000000);
+    }, 600000);
     return () => {
       clearInterval(interval);
     };

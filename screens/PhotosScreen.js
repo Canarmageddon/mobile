@@ -14,18 +14,19 @@ function PhotosScreen({navigation, route}) {
     const { isLoading, isError, error, data: photosTrip } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
     
     const getPhotos = tripId => {
-        return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
-            // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data["hydra:member"]);
-                // return data["hydra:member"];
-                return [];
-            })  
-            .catch(error => {
-                console.log(error.message);
-            });
+        // return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
+        //     // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
+        //     .then(checkStatus)
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log(data["hydra:member"]);
+        //         // return data["hydra:member"];
+        //         return data["hydra:member"];
+        //     })  
+        //     .catch(error => {
+        //         console.log(error.message);
+        //     });
+        return [];
     }
 
     const photos = [

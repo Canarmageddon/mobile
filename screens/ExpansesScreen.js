@@ -15,19 +15,19 @@ function ExpansesScreen({navigation}) {
     const [balance, setBalance] = useState([]);
     const [balanceIsSet, setBalanceIsSet] = useState(false);
 
-    const { isLoading: isLoadingUsers, isError: isErrorUsers, error: errorUsers, data: users } = useQuery('users', () => getUsers());
+    const { isLoading: isLoadingUsers, isError: isErrorUsers, error: errorUsers, data: users } = useQuery(['users', trip.id], () => getUsers(trip.id));
     const { isLoading, isError, error, data: expanses } = useQuery(['tripExpanses', trip.id], () => getExpanses(trip.id), {enabled: balanceIsSet});
 
-    const getUsers = () => {       
-        return fetch(`http://vm-26.iutrs.unistra.fr/api/users`)
+    const getUsers = tripId => {       
+        return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/users`)
             .then(checkStatus)
             .then(response => response.json())
             .then(data => {
-                data = data["hydra:member"];
                 // console.log(data);
                 setNumberOfTravelers(data.length);
                 let newBalance = [];
                 data.map(user => {
+                    user = user.user;
                     newBalance.push({userId: user.id, user: `${user.firstName} ${user.lastName}`, totalExpanses: 0});
                 })
                 setBalance(newBalance);
@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         overflow: 'scroll',
         maxHeight: '78%',
+        height: '78%',
     },
     footer: {
         width: '100%',

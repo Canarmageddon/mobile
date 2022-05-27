@@ -83,6 +83,7 @@ function AddExpanseScreen({navigation, route}) {
                             <Picker.Item label="Tous" value="Tous" />
                             {
                                 route.params.users.map(user => {
+                                    user = user.user;
                                     return <Picker.Item key={user.id} label={`${user.firstName} ${user.lastName}`} value={`${user.firstName} ${user.lastName}`} />
                                 })
                             }

@@ -11,10 +11,9 @@ import { useQueryClient, useMutation } from 'react-query';
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
 import checkStatus from "../utils/checkStatus";
-import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
 import RNFetchBlob from "rn-fetch-blob";
-import RNFS from 'react-native-fs';
-// const RNFS = require('react-native-fs');
+import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = ({route, navigation}) => {
     const trip = useTrip();
@@ -23,6 +22,7 @@ const CameraScreen = ({route, navigation}) => {
     const [startCamera,setStartCamera] = React.useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [capturedImage, setCapturedImage] = useState(null);
+    const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);
     let camera = Camera;
 
     const __startCamera = async () => {
@@ -33,9 +33,15 @@ const CameraScreen = ({route, navigation}) => {
             Alert.alert("Access denied");
         }
     }
+
+    const __requestMediaAccess = async () => {
+        const {status} = await MediaLibrary.requestPermissionsAsync();
+        setHasMediaLibraryPermission(status === 'granted');
+    }
     
     useEffect(() => {
         __startCamera();
+        __requestMediaAccess();
     }, [startCamera]);
 
     const __takePicture = async () => {
@@ -45,26 +51,21 @@ const CameraScreen = ({route, navigation}) => {
         setCapturedImage(photo);
     }
 
-    const __savePhoto = (photo) => {
-        const name = photo.uri.substring(photo.uri.lastIndexOf('/') + 1);
-        const extension = (Platform.OS === 'android')? 'file://': '';
-        const path = `${extension}${RNFetchBlob.fs.dirs.DownloadDir}/${name}`; //U can use any format png, jpeg, jpg
-        
-        RNFS.exists(photo.uri).then(exists => {
-            RNFS.copyFile(photo.uri, path).then(() => {
-                RNFS.exists(path).then(exists => {
-                    photo.uri = path;
-                    addItem.mutate(photo);
-                })
-                alert('La photo a été sauvegardé dans vos téléchargements.'); 
+    const __savePhoto = async (photo) => {
+        if(hasMediaLibraryPermission){
+            await MediaLibrary.createAssetAsync(photo.uri)
+            .then((res) => {
+                console.log(res);
+                addItem.mutate(res);
+                // setCapturedImage(null);
             })
             .catch(error => {
                 console.log(error);
             });
-        })
-        .catch(error => {
-            console.log(error);
-        });
+        }
+        else{
+            alert("Vous n'avez pas autorisé l'accès aux médias.");
+        }
     }
 
     const __retakePicture = () => {
@@ -85,16 +86,20 @@ const CameraScreen = ({route, navigation}) => {
     });
 
     const addPhoto = (photo) => {
+        const name = photo.filename;
         const form = new FormData();
-
+        const uriParts = name.split('.');
+        const type = uriParts[uriParts.length - 1];
         form.append('file', {
-            uri: photo.uri,
+            // uri: photo.uri,
+            uri : 'file:///storage/emulated/0/DCIM/fc397ec2-b993-41df-ad0d-6a487c3a01da.jpg',
+            // type: 'image/' + type,
             type: 'image/jpg',
-            name: photo.uri.substring(photo.uri.lastIndexOf('/') + 1),
+            name: 'fc397ec2-b993-41df-ad0d-6a487c3a01da.jpg',
         });
         form.append('creator', user.id);
         form.append('trip', trip.id);
-
+        console.log(form);
         return fetch('http://vm-26.iutrs.unistra.fr/api/pictures', {
             method: "POST",
             headers: {
@@ -104,7 +109,7 @@ const CameraScreen = ({route, navigation}) => {
         })
         .then(checkStatus)
         .then(response => response.json())
-        .then(data => { //A FAIRE : Essayer de supprimer la photo après l'avoir envoyer, pour qu'on puisse ensuite la téléchargement proprement depuis la visualisateur
+        .then(data => { 
             console.log(data);
             navigation.navigate('Photos');
             return data;
