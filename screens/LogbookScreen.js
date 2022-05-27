@@ -28,31 +28,17 @@ function LogbookScreen({ navigation, route }) {
         return data;
       });
   };
-  let TripListItem = ({ item: trip }) => {
-    return (
-      <>
-        <View style={styles.tripButton}>
-          <Button
-            onPress={() => {
-              // tripUpdate(trip);
-              navigation.navigate("Mes voyages");
-            }}
-            title={trip.name}
-            color={"#00A5C7"}
-          ></Button>
-        </View>
-      </>
-    );
-  };
+
   return (
+    <>
     <View style={styles.content}>
-      <ScrollView>
+      <ScrollView style={styles.entriesContainer}>
         {!isError &&
           !isLoading &&
           data != undefined &&
           data.map((text) => (
             <>
-              <View style={{ borderColor: "black", borderWidth: 1 }}>
+              <View style={styles.entrie}>
                 <Text>{text.creationDate}</Text>
                 <Text>{text.content}</Text>
               </View>
@@ -60,18 +46,66 @@ function LogbookScreen({ navigation, route }) {
           ))}
       </ScrollView>
 
-      <View style={styles.content}></View>
-      <Button
-        title='Ajouter une entrée au journal'
-        onPress={() => navigation.navigate("Nouvelle entrée au journal")}
-      />
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={styles.button}
+          onPress={() => navigation.navigate("Ajouter une entrée au journal")}
+        >
+          <Text style={styles.buttonText}>Ajouter une entrée au journal</Text>
+        </Pressable>
+      </View>
+      
     </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
     flex: 1,
+    backgroundColor: '#fff', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+  },
+  entriesContainer: {
+    display: 'flex',
+    margin: 5,
+    width: '100%'
+  },
+  entrie: {
+    width: '96%',
+    minHeight: 70,
+    backgroundColor: '#D3D3D3',
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 10,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginLeft: 5,
+    marginBottom: 5
+  },
+  buttonContainer: {
+    width: '100%',
+    height: '15%',
+    backgroundColor: '#9AC4F8',
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
+  button: {
+    borderRadius: 4, 
+    backgroundColor: '#14274e', 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: 40,
+    paddingHorizontal: 5
+  },
+  buttonText: {
+    margin: 5,
+    textAlign: "center",
+    fontWeight: "bold",
+    color: 'white',
+    fontSize: 15
   },
 });
 
