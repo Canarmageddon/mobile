@@ -10,59 +10,35 @@ function PhotosScreen({navigation, route}) {
     const numColumns = 3;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);
+    const [currentImageName, setCurrentImageName] = useState(null);
     const trip = useTrip();
-    const { isLoading, isError, error, data: photosTrip } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
+    const { isLoading, isError, error, data: photos } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.pictures));
     
-    const getPhotos = tripId => {
-        // return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures`)
-        //     // return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}`)
-        //     .then(checkStatus)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         console.log(data["hydra:member"]);
-        //         // return data["hydra:member"];
-        //         return data["hydra:member"];
-        //     })  
-        //     .catch(error => {
-        //         console.log(error.message);
-        //     });
-        return [];
+    const getPhotos = tripPictures => {
+        let pictures = [];
+        tripPictures.map((picture, index) => {
+            pictures.push({id: index, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${picture.id}`, name: picture.filePath});
+        })
+        return pictures;
     }
 
-    const photos = [
-        {id: 0, url: 'https://cdn.futura-sciences.com/buildsv6/images/wide1920/6/5/2/652a7adb1b_98148_01-intro-773.jpg'},
-        {id: 1, url: 'https://jardinage.lemonde.fr/images/dossiers/2019-09/mandarin-1-083912.jpg'},
-        {id: 2, url: 'https://i.notrefamille.com/1400x787/smart/2017/05/30/337863-original.jpg'},
-        {id: 3, url: 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Anas_platyrhynchos_male_female_quadrat.jpg'},
-        {id: 4, url: 'https://www.fdc73.chasseauvergnerhonealpes.com/wp-content/uploads/sites/7/2018/07/Canard-Colvert.jpg'},
-        {id: 5, url: 'https://france3-regions.francetvinfo.fr/image/jipXtvKRj3I8tolpJJUOQXarqFg/600x400/regions/2020/06/09/5edf96c44676e_85059093_2865499316845570_4145397555292798976_o-4646581.jpg'},
-        {id: 6, url: 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Anas_platyrhynchos_male_female_quadrat.jpg'},
-        {id: 7, url: 'https://cdn.futura-sciences.com/buildsv6/images/wide1920/6/5/2/652a7adb1b_98148_01-intro-773.jpg'},
-        {id: 8, url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzRXFUhyOk8iWFIMdjnImc4FmySZp5ZQmeUWAHLnH1pVUtGp42BFLOcxYwEE8rqNP_9iI&usqp=CAU'},
-        {id: 9, url: 'https://i.notrefamille.com/1400x787/smart/2017/05/30/337863-original.jpg'},
-        {id: 10, url: 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Anas_platyrhynchos_male_female_quadrat.jpg'},
-        {id: 11, url: 'https://www.fdc73.chasseauvergnerhonealpes.com/wp-content/uploads/sites/7/2018/07/Canard-Colvert.jpg'},
-    ]
-
-    function openModal(index) {
+    function openModal(index, name) {
         setIsModalOpen(true);
         setCurrentImageIndex(index);
+        setCurrentImageName(name);
     }
 
     const PhotosListItem = ({ item: photo }) => {
         return (
-            <Pressable onPress={() => {openModal(photo.id)}}>
+            <Pressable onPress={() => {openModal(photo.id, photo.name)}}>
                 <Image source={{uri: photo.url}} style={styles.photo}></Image>
             </Pressable>
         );
     }
 
     const saveImage = (uri) => {
-        let lastSlashIndex = uri.lastIndexOf('/');
-        let imageName = uri.substring(lastSlashIndex);
-        let imgExt = imageName.substring(imageName.lastIndexOf('.'));
-
-        let path = RNFetchBlob.fs.dirs.DownloadDir + imageName;
+        let imgExt = currentImageName.substring(currentImageName.lastIndexOf('.'));
+        let path = RNFetchBlob.fs.dirs.DCIMDir + '/' + currentImageName;
 
         RNFetchBlob.config({
             fileCache: true,
@@ -104,18 +80,18 @@ function PhotosScreen({navigation, route}) {
     return <>
         <View style={styles.mainContainer}>
             <View style={styles.photosListContainer}>
-                {/* {isLoading ? <Text style={styles.text}>Loading...</Text> :  */}
-                    {/* photos.length > 0 ? */}
+                {isLoading ? <Text style={styles.text}>Loading...</Text> : 
+                    photos.length > 0 ?
                     <FlatList
                         data={photos}
                         renderItem={PhotosListItem}
                         keyExtractor={item => item.id}
                         numColumns={numColumns}
                     /> 
-                    {/* // <Text style={styles.text}>Y a une photo normalement</Text>
+                    //  <Text style={styles.text}>Y a une photo normalement</Text>
                     : 
                     <Text style={styles.text}>Aucune photo n'est associée à ce voyage.</Text>
-                } */}
+                }
             </View>
             <View style={styles.buttonContainer}>
                 <Pressable onPress={() => navigation.navigate('Camera')} style={styles.button}>

@@ -55,9 +55,9 @@ const CameraScreen = ({route, navigation}) => {
         if(hasMediaLibraryPermission){
             await MediaLibrary.createAssetAsync(photo.uri)
             .then((res) => {
-                console.log(res);
+                // console.log(res);
                 addItem.mutate(res);
-                // setCapturedImage(null);
+                navigation.navigate('Photos');
             })
             .catch(error => {
                 console.log(error);
@@ -81,7 +81,7 @@ const CameraScreen = ({route, navigation}) => {
     const addItem = useMutation((photo) => addPhoto(photo), {
         onSuccess: item => queryClient.setQueryData(
             ['tripPictures', trip.id],
-            items => [...items, item]
+            items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
         )
     });
 
@@ -90,16 +90,15 @@ const CameraScreen = ({route, navigation}) => {
         const form = new FormData();
         const uriParts = name.split('.');
         const type = uriParts[uriParts.length - 1];
+
         form.append('file', {
-            // uri: photo.uri,
-            uri : 'file:///storage/emulated/0/DCIM/fc397ec2-b993-41df-ad0d-6a487c3a01da.jpg',
-            // type: 'image/' + type,
-            type: 'image/jpg',
-            name: 'fc397ec2-b993-41df-ad0d-6a487c3a01da.jpg',
+            uri: photo.uri,
+            type: 'image/' + type,
+            name: name,
         });
         form.append('creator', user.id);
         form.append('trip', trip.id);
-        console.log(form);
+
         return fetch('http://vm-26.iutrs.unistra.fr/api/pictures', {
             method: "POST",
             headers: {
@@ -111,13 +110,13 @@ const CameraScreen = ({route, navigation}) => {
         .then(response => response.json())
         .then(data => { 
             console.log(data);
-            navigation.navigate('Photos');
             return data;
         })        
         .catch(error => {
-            // alert(error.message);
+            alert("Une erreur a eu lieu lors de l'ajout de la photo sur le serveur.");
             console.log(error);
         });
+    
     }
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
@@ -176,9 +175,3 @@ const CameraScreen = ({route, navigation}) => {
 };
   
 export default CameraScreen;
-
-const styles = StyleSheet.create({
-    container: {
-        margin: 10,
-    },
-});
