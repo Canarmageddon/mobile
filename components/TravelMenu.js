@@ -37,7 +37,6 @@ const TravelMenu = ({ navigation }) => {
       duration: 500,
       useNativeDriver: true,
     }).start();
-
     Animated.timing(slideAnim5, {
       toValue: isMenuSpread ? 0 : 275,
       duration: 600,

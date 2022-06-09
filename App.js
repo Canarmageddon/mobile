@@ -15,6 +15,7 @@ import CameraScreen from "./screens/CameraScreen";
 import InformationScreen from "./screens/InformationScreen";
 import ConnexionScreen from "./screens/ConnexionScreen";
 import TripListScreen from "./screens/TripListScreen";
+import DetailEtapes from "./screens/DetailEtapes";
 import MembersScreen from "./screens/MembersScreen";
 import { PositionProvider } from "./contexts/GeolocationContext";
 import NewLogBookEntryScreen from "./screens/NewLogBookEntryScreen";
@@ -101,10 +102,7 @@ export default function App() {
                     name='Informations pratiques'
                     component={InformationScreen}
                   />
-                  <Stack.Screen
-                    name='Membres'
-                    component={MembersScreen}
-                  />
+                  <Stack.Screen name='Membres' component={MembersScreen} />
                   <Stack.Screen
                     name='Ajouter une entrée au journal'
                     component={NewLogBookEntryScreen}
