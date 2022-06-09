@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Animated, Text, View, Pressable } from "react-native";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 
-const TravelMenu = (props) => {
+const TravelMenu = ({ navigation }) => {
   const slideAnim1 = useRef(new Animated.Value(0)).current;
   const slideAnim2 = useRef(new Animated.Value(0)).current;
   const slideAnim3 = useRef(new Animated.Value(0)).current;
@@ -84,7 +84,7 @@ const TravelMenu = (props) => {
     <>
       <View style={styles.menu}>
         <Pressable
-          style={[styles.menuButton, { elevation: 10, zIndex: 10 }]}
+          style={[styles.menuButton, { elevation: 12, zIndex: 12 }]}
           onPress={() => startAnimation()}
         >
           {isMenuSpread ? (
@@ -97,9 +97,9 @@ const TravelMenu = (props) => {
           style={[
             styles.menuButton,
             styles.slideTop1,
-            { elevation: 8, zIndex: 8 },
+            { elevation: 10, zIndex: 10 },
           ]}
-          onPress={() => props.navigation.navigate("Journal de bord")}
+          onPress={() => navigation.navigate("Journal de bord")}
         >
           <AntDesign name='book' size={28} color='black' />
         </AnimatedPressable>
@@ -107,9 +107,9 @@ const TravelMenu = (props) => {
           style={[
             styles.menuButton,
             styles.slideTop2,
-            { elevation: 6, zIndex: 6 },
+            { elevation: 9, zIndex: 9 },
           ]}
-          onPress={() => props.navigation.navigate("Gestion des dépenses")}
+          onPress={() => navigation.navigate("Gestion des dépenses")}
         >
           <FontAwesome5 name='coins' size={28} color='black' />
         </AnimatedPressable>
@@ -117,9 +117,9 @@ const TravelMenu = (props) => {
           style={[
             styles.menuButton,
             styles.slideTop3,
-            { elevation: 4, zIndex: 4 },
+            { elevation: 8, zIndex: 8 },
           ]}
-          onPress={() => props.navigation.navigate("Photos")}
+          onPress={() => navigation.navigate("Photos")}
         >
           <MaterialIcons name='photo-camera' size={28} color='black' />
         </AnimatedPressable>
@@ -127,19 +127,9 @@ const TravelMenu = (props) => {
           style={[
             styles.menuButton,
             styles.slideTop4,
-            { elevation: 2, zIndex: 2 },
+            { elevation: 7, zIndex: 7 },
           ]}
-          onPress={() => props.navigation.navigate("Informations pratiques")}
-        >
-          <FontAwesome5 name='info' size={28} color='black' />
-        </AnimatedPressable>
-        <AnimatedPressable
-          style={[
-            styles.menuButton,
-            styles.slideTop4,
-            { elevation: 2, zIndex: 2 },
-          ]}
-          onPress={() => props.navigation.navigate("Informations pratiques")}
+          onPress={() => navigation.navigate("Informations pratiques")}
         >
           <FontAwesome5 name='info' size={28} color='black' />
         </AnimatedPressable>
@@ -147,11 +137,11 @@ const TravelMenu = (props) => {
           style={[
             styles.menuButton,
             styles.slideTop5,
-            { elevation: 2, zIndex: 2 },
+            { elevation: 6, zIndex: 6 },
           ]}
-          onPress={() => props.navigation.navigate("Details du voyage")}
+          onPress={() => navigation.navigate("Membres")}
         >
-          <FontAwesome5 name='info' size={28} color='black' />
+          <MaterialIcons name='groups' size={28} color='black' />
         </AnimatedPressable>
       </View>
     </>

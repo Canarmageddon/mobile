@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Animated, Text, View, Pressable } from "react-native";
+import { Animated, Text, View, Pressable, ScrollView } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+navigator.geolocation = require("@react-native-community/geolocation");
 
 const MarkerMenu = ({
   slideAnim,
@@ -31,7 +32,6 @@ const MarkerMenu = ({
       height: "20%",
       borderWidth: 1,
       borderBottomWidth: 0,
-      backgroundColor: "#87CEFA",
       alignItems: "center",
     },
     markerMenu: {
@@ -39,7 +39,6 @@ const MarkerMenu = ({
       width: "100%",
       borderWidth: 1,
       flexDirection: "column",
-      backgroundColor: "#87CEFA",
     },
     markerMenuButton: {
       width: "100%",
@@ -62,10 +61,15 @@ const MarkerMenu = ({
     titleContainer: {
       justifyContent: "center",
       alignItems: "center",
+      marginTop: 5,
     },
     title: {
       fontWeight: "bold",
-      fontSize: 18,
+      fontSize: 17,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+      maxHeight: 23,
     },
     buttonText: {
       margin: 5,
@@ -74,10 +78,29 @@ const MarkerMenu = ({
     },
   };
 
+  const menuBackgroundColor =
+    markerSelectedType === "step"
+      ? "#87CEFA"
+      : markerSelectedType === "poi"
+      ? "#ff2225"
+      : markerSelectedType === "travel"
+      ? "#34c924"
+      : null;
+  const itemTitle =
+    markerSelectedType === "step"
+      ? markerSelected.description
+      : markerSelectedType === "poi"
+      ? markerSelected.location.name
+      : markerSelectedType === "travel"
+      ? `Trajet de ${markerSelected.start.id} à ${markerSelected.end.id}`
+      : null;
+
   return (
     <>
       <Animated.View style={[styles.menuContainer, styles.slide]}>
-        <View style={styles.closeMenu}>
+        <View
+          style={[styles.closeMenu, { backgroundColor: menuBackgroundColor }]}
+        >
           <Pressable
             onPress={() => {
               startAnimation();
@@ -86,15 +109,11 @@ const MarkerMenu = ({
             <AntDesign name='arrowdown' size={24} color='black' />
           </Pressable>
         </View>
-        <View style={styles.markerMenu}>
+        <View
+          style={[styles.markerMenu, { backgroundColor: menuBackgroundColor }]}
+        >
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>
-              {(markerSelectedType === "step"
-                ? "Etape "
-                : markerSelectedType === "pointOfInterest"
-                ? "Point d'intérêt "
-                : null) + markerSelected.id}
-            </Text>
+            <Text style={styles.title}>{itemTitle}</Text>
           </View>
           <View
             style={{

@@ -1,20 +1,26 @@
 import {
     Text,
     View,
-    StyleSheet,
     TouchableOpacity,
     ImageBackground
 } from "react-native";
 import React, {useState, useEffect} from "react";
 import {Camera} from 'expo-camera'
-// import { useQueryClient, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from 'react-query';
+import { useTrip } from "../context/tripContext";
+import { useUser } from "../context/userContext";
 import checkStatus from "../utils/checkStatus";
-import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
+import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = ({route, navigation}) => {
-    const [startCamera,setStartCamera] = React.useState(false)
-    const [previewVisible, setPreviewVisible] = useState(false)
-    const [capturedImage, setCapturedImage] = useState(null)
+    const trip = useTrip();
+    const [user, token] = useUser();
+    const queryClient = useQueryClient();
+    const [startCamera,setStartCamera] = React.useState(false);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [capturedImage, setCapturedImage] = useState(null);
+    const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);
     let camera = Camera;
 
     const __startCamera = async () => {
@@ -25,9 +31,15 @@ const CameraScreen = ({route, navigation}) => {
             Alert.alert("Access denied");
         }
     }
+
+    const __requestMediaAccess = async () => {
+        const {status} = await MediaLibrary.requestPermissionsAsync();
+        setHasMediaLibraryPermission(status === 'granted');
+    }
     
     useEffect(() => {
         __startCamera();
+        __requestMediaAccess();
     }, [startCamera]);
 
     const __takePicture = async () => {
@@ -37,8 +49,21 @@ const CameraScreen = ({route, navigation}) => {
         setCapturedImage(photo);
     }
 
-    const __savePhoto = () => {
-        // addItem.mutate({photoId: route.params.photo.id, userId: route.params.user.id})
+    const __savePhoto = async (photo) => {
+        if(hasMediaLibraryPermission){
+            await MediaLibrary.createAssetAsync(photo.uri)
+            .then((res) => {
+                // console.log(res);
+                addItem.mutate(res);
+                navigation.navigate('Photos');
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        }
+        else{
+            alert("Vous n'avez pas autorisé l'accès aux médias.");
+        }
     }
 
     const __retakePicture = () => {
@@ -51,33 +76,12 @@ const CameraScreen = ({route, navigation}) => {
         navigation.goBack();
     }
 
-    // const addItem = useMutation(({photoId, userId}) => createPhoto(photoId, userId), {
-    //     onSuccess: item => queryClient.setQueryData(
-    //         ['colocPhotosEntities', coloc.id],
-    //         items => [...items, item]
-    //     )
-    // });
-
-    // const createPhoto = (photoId, userId) => {
-    //     return fetch('http://sterne.iutrs.unistra.fr:8080/api/coloc/newPhoto', {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify({idPhoto: photoId, creator: userId})
-    //     })
-    //     .then(checkStatus)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         navigation.navigate('Liste Photos');
-    //         return data;
-    //     })        
-    //     .catch(error => {
-    //         alert(error.message);
-    //         console.log(error.message);
-    //     });
-    // }
+    const addItem = useMutation((photo) => route.params.addPhoto(photo), {
+        onSuccess: item => queryClient.setQueryData(
+            ['tripPictures', trip.id],
+            items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
+        )
+    });
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
         return (
@@ -90,7 +94,7 @@ const CameraScreen = ({route, navigation}) => {
                                     Reprendre
                                 </Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={savePhoto} style={{width: 130, height: 40, alignItems: 'center', borderRadius: 4}}>
+                            <TouchableOpacity onPress={() => savePhoto(photo)} style={{width: 130, height: 40, alignItems: 'center', borderRadius: 4}}>
                                 <Text style={{color: '#fff', fontSize: 20}}>
                                     Sauvegarder
                                 </Text>
@@ -135,9 +139,3 @@ const CameraScreen = ({route, navigation}) => {
 };
   
 export default CameraScreen;
-
-const styles = StyleSheet.create({
-    container: {
-        margin: 10,
-    },
-});
