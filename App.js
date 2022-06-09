@@ -104,7 +104,7 @@ export default function App() {
                   />
                   <Stack.Screen name='Membres' component={MembersScreen} />
                   <Stack.Screen
-                    name='Nouvelle entrée au journal'
+                    name='Ajouter une entrée au journal'
                     component={NewLogBookEntryScreen}
                   />
                 </Stack.Navigator>
