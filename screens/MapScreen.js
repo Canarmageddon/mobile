@@ -241,7 +241,7 @@ function MapScreen({ navigation }) {
               width: windowWidth,
             }}
             localizeLabels={true}
-            compassViewPosition={0}
+            compassViewPosition={3}
           >
             {position != null && (
               <PointAnnotation
@@ -252,7 +252,7 @@ function MapScreen({ navigation }) {
             )}
             <Camera 
               zoomLevel={5} 
-              centerCoordinate={[centerCoordinate[0], centerCoordinate[1]]}
+              centerCoordinate={[position.longitude, position.latitude]}
             />
             {isLoadingSteps
               ? null

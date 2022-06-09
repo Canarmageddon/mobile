@@ -1,13 +1,11 @@
 import { View, Text, StyleSheet, Button, FlatList } from "react-native";
 import React from "react";
 import checkStatus from "../utils/checkStatus";
-// import { useUser } from "../context/userContext";
 import { useQuery, useQueryClient } from "react-query";
 import { useTripUpdate } from "../context/tripContext";
 import { useUser } from "../context/userContext";
 
 const TripListScreen = ({ navigation, route }) => {
-  // const [user] = useUser();
   const [user] = useUser();
   const tripUpdate = useTripUpdate();
   const queryClient = useQueryClient();

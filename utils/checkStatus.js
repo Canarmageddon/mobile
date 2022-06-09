@@ -1,9 +1,13 @@
 const checkStatus = (response) => {
-  if (response.ok) {
+  if(response.ok) {
     return response;
   } else {
     return response.json().then((text) => {
-      throw new Error(text.message);
+      let errorMessage = '';
+      for(let prop in text){
+        errorMessage += text[prop] + '/ ';
+      }
+      throw new Error(errorMessage);
     });
   }
 };
