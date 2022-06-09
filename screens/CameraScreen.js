@@ -1,7 +1,6 @@
 import {
     Text,
     View,
-    StyleSheet,
     TouchableOpacity,
     ImageBackground
 } from "react-native";
@@ -12,7 +11,6 @@ import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
 import checkStatus from "../utils/checkStatus";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
-import RNFetchBlob from "rn-fetch-blob";
 import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = ({route, navigation}) => {
@@ -78,46 +76,12 @@ const CameraScreen = ({route, navigation}) => {
         navigation.goBack();
     }
 
-    const addItem = useMutation((photo) => addPhoto(photo), {
+    const addItem = useMutation((photo) => route.params.addPhoto(photo), {
         onSuccess: item => queryClient.setQueryData(
             ['tripPictures', trip.id],
             items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
         )
     });
-
-    const addPhoto = (photo) => {
-        const name = photo.filename;
-        const form = new FormData();
-        const uriParts = name.split('.');
-        const type = uriParts[uriParts.length - 1];
-
-        form.append('file', {
-            uri: photo.uri,
-            type: 'image/' + type,
-            name: name,
-        });
-        form.append('creator', user.id);
-        form.append('trip', trip.id);
-
-        return fetch('http://vm-26.iutrs.unistra.fr/api/pictures', {
-            method: "POST",
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            body: form
-        })
-        .then(checkStatus)
-        .then(response => response.json())
-        .then(data => { 
-            console.log(data);
-            return data;
-        })        
-        .catch(error => {
-            alert("Une erreur a eu lieu lors de l'ajout de la photo sur le serveur.");
-            console.log(error);
-        });
-    
-    }
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
         return (

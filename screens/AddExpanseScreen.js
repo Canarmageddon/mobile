@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Pressable, FlatList, Image, Modal, Alert, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import checkStatus from "../utils/checkStatus";
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
+import MultiSelect from 'react-native-multiple-select';
+import { ScrollView } from "react-native-gesture-handler";
 
 function AddExpanseScreen({navigation, route}) {
     const [user, token] = useUser();
@@ -12,7 +14,7 @@ function AddExpanseScreen({navigation, route}) {
     const queryClient = useQueryClient();
     const [category, setCategory] = useState('Alimentaire');
     const [label, setLabel] = useState(null);
-    const [beneficiaries, setBeneficiaries] = useState('Tous');
+    const [beneficiaries, setBeneficiaries] = useState([]);
     const [costValue, setCostValue] = useState(0);
     const [formIsComplete, setFormIsComplete] = useState(false);
 
@@ -54,7 +56,7 @@ function AddExpanseScreen({navigation, route}) {
 
     return <>
         <View style={styles.mainContainer}>
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <View style={styles.input}>
                     <Text style={styles.inputTitles}>Intitulé</Text>
                     <TextInput style={styles.textInput} value={label} onChangeText={setLabel}/>
@@ -66,31 +68,43 @@ function AddExpanseScreen({navigation, route}) {
                 <View style={styles.input}>
                     <Text style={styles.inputTitles}>Catégorie</Text>
                     <View style={styles.textInput}>
-                        <Picker style={styles.textInput} selectedValue={category} onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}>
-                            <Picker.Item label="Alimentaire" value="Alimentaire" />
-                            <Picker.Item label="Transport" value="Transport" />
-                            <Picker.Item label="Loisirs" value="Loisirs" />
-                            <Picker.Item label="Logement" value="Logement" />
-                            <Picker.Item label="Hygiène" value="Hygiène" />
-                            <Picker.Item label="Autre" value="Autre" />
+                        <Picker style={styles.textInput} selectedValue={category} onValueChange={itemValue => setCategory(itemValue)}>
+                            <Picker.Item key="Alimentaire" label="Alimentaire" value="Alimentaire"/>
+                            <Picker.Item key="Transport" label="Transport" value="Transport"/>
+                            <Picker.Item key="Loisirs" label="Loisirs" value="Loisirs"/>
+                            <Picker.Item key="Logement" label="Logement" value="Logement"/>
+                            <Picker.Item key="Hygiène" label="Hygiène" value="Hygiène"/>
+                            <Picker.Item key="Autre" label="Autre" value="Autre"/>
                         </Picker>
                     </View>
                 </View>
                 <View style={styles.input}>
                     <Text style={styles.inputTitles}>Bénéficiaires</Text>
-                    <View style={styles.textInput}>
-                        <Picker selectedValue={beneficiaries} onValueChange={(itemValue, itemIndex) => setBeneficiaries(itemValue)}>
-                            <Picker.Item label="Tous" value="Tous" />
-                            {
-                                route.params.users.map(user => {
-                                    user = user.user;
-                                    return <Picker.Item key={user.id} label={`${user.firstName} ${user.lastName}`} value={`${user.firstName} ${user.lastName}`} />
-                                })
-                            }
-                        </Picker>
-                        </View>
+                    <View style={styles.multiselector}>
+                        <MultiSelect 
+                            // hideTags
+                            items={route.params.users.map(user => {
+                                user = user.user;
+                                return {id: user.id, name: `${user.firstName} ${user.lastName}`, value: `${user.firstName} ${user.lastName}`}
+                            })}
+                            uniqueKey="id"
+                            onSelectedItemsChange={(selectedItems) => setBeneficiaries(selectedItems)}
+                            selectedItems={beneficiaries}
+                            selectText="Sélectionner les bénéficiaires"
+                            searchInputPlaceholderText="Chercher parmi les participants..."
+                            tagRemoveIconColor="#000"
+                            tagBorderColor="#000"
+                            tagTextColor="#000"
+                            itemTextColor="#000"
+                            displayKey="name"
+                            searchInputStyle={{ color: '#CCC' }}
+                            submitButtonColor="#9AC4F8"
+                            submitButtonText="Valider"
+                            styleMainWrapper={{margin: 5}}
+                        />
                     </View>
-            </View>
+                </View>
+            </ScrollView>
             <View style={styles.footer}>
                 <Pressable onPress={() => { formIsComplete   
                     ? addItem.mutate({creator: user.id, category: category, beneficiaries: beneficiaries, trip: trip.id, label: label, value: parseFloat(costValue)})
@@ -112,14 +126,7 @@ const styles = StyleSheet.create({
     },
     container: {
         width: '100%',
-        height: '85%'
-    },
-    menu: {
-        width: '100%',
-        height: '15%',
-        alignItems: 'center',
-        marginBottom: 5,
-        flexDirection: 'row',
+        height: '85%',
     },
     inputTitles: {
         fontSize: 23,
@@ -160,6 +167,12 @@ const styles = StyleSheet.create({
         borderTopColor: 'black',
         borderTopWidth: 2
     },
+    multiselector: {
+        height: 'auto',
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 10,
+    }
 });
 
 export default AddExpanseScreen;
