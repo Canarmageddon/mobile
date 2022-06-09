@@ -3,11 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
-  Image,
   Pressable,
-  Button,
-  TextInput,
 } from "react-native";
 import checkStatus from "../utils/checkStatus";
 import { useTrip } from "../context/tripContext";
@@ -21,62 +17,91 @@ function LogbookScreen({ navigation, route }) {
     { refetchOnWindowFocus: "always" },
   );
   const getLogBookEntries = (tripId) => {
-    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/1/logBookEntries`)
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${trip.id}/logBookEntries`)
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
         return data;
       });
   };
-  let TripListItem = ({ item: trip }) => {
-    return (
-      <>
-        <View style={styles.tripButton}>
-          <Button
-            onPress={() => {
-              // tripUpdate(trip);
-              navigation.navigate("Mes voyages");
-            }}
-            title={trip.name}
-            color={"#00A5C7"}
-          ></Button>
-        </View>
-      </>
-    );
-  };
+
   return (
+    <>
     <View style={styles.content}>
-      <ScrollView>
+      <ScrollView style={styles.entriesContainer}>
         {!isError &&
           !isLoading &&
           data != undefined &&
-          data.map((text) => (
+          data.map((text, index) => (
             <>
-<<<<<<< Updated upstream
-              <View style={{ borderColor: "black", borderWidth: 1 }}>
-                <Text>{text.creationDate}</Text>
-=======
-              <View style={styles.entrie}>
+              <View key={index} style={styles.entrie}>
                 <Text>{new Date(text.creationDate).toLocaleDateString('fr-FR') + ' ' + new Date(text.creationDate).toLocaleTimeString()}</Text>
->>>>>>> Stashed changes
                 <Text>{text.content}</Text>
               </View>
             </>
           ))}
       </ScrollView>
 
-      <View style={styles.content}></View>
-      <Button
-        title='Ajouter une entrée au journal'
-        onPress={() => navigation.navigate("Nouvelle entrée au journal")}
-      />
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={styles.button}
+          onPress={() => navigation.navigate("Ajouter une entrée au journal")}
+        >
+          <Text style={styles.buttonText}>Ajouter une entrée au journal</Text>
+        </Pressable>
+      </View>
+      
     </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
     flex: 1,
+    backgroundColor: '#fff', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+  },
+  entriesContainer: {
+    display: 'flex',
+    margin: 5,
+    width: '100%'
+  },
+  entrie: {
+    width: '96%',
+    minHeight: 70,
+    backgroundColor: '#D3D3D3',
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 10,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginLeft: 5,
+    marginBottom: 5
+  },
+  buttonContainer: {
+    width: '100%',
+    height: '15%',
+    backgroundColor: '#9AC4F8',
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
+  button: {
+    borderRadius: 4, 
+    backgroundColor: '#14274e', 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: 40,
+    paddingHorizontal: 5
+  },
+  buttonText: {
+    margin: 5,
+    textAlign: "center",
+    fontWeight: "bold",
+    color: 'white',
+    fontSize: 15
   },
 });
 
