@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Button, TextInput } from "react-native";
+import { StyleSheet, View, TextInput, Text, Pressable } from "react-native";
 import { StackActions } from "@react-navigation/native";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
@@ -39,29 +39,80 @@ function NewLogBookEntryScreen({ navigation, route }) {
     });
   };
 
-  return (
-    <View style={{ flex: 1 }}>
-      <TextInput
-        style={styles.input}
-        value={textValue}
-        onChangeText={(text) => setTextValue(text)}
-        multiline={true}
-        underlineColorAndroid='transparent'
-        placeholder='Ecrivez ici'
-      />
-      <Button title='Enregistrer' onPress={() => handlePress()} />
+  return <>    
+    <View style={styles.mainContainer}>
+      <View style={styles.container}>
+          <View style={styles.input}>
+              <Text style={styles.inputTitles}>Texte</Text>
+              <TextInput
+                style={styles.textInput} 
+                value={textValue}
+                onChangeText={(text) => setTextValue(text)}
+                multiline={true}
+                placeholder='Ecrivez ici'
+              />
+          </View>
+      </View>
+      <View style={styles.footer}>
+          <Pressable onPress={() => handlePress()} style={styles.button}>
+              <Text style={styles.buttonText}>Enregistrer</Text>                
+          </Pressable>
+      </View>
     </View>
-  );
+  </>;
 }
 
 const styles = StyleSheet.create({
-  input: {
-    alignSelf: "center",
-    width: "75%",
-    borderBottomColor: "black",
-    borderBottomWidth: 1,
-    flex: 1,
-  },
+    mainContainer: {
+        flex: 1, 
+        backgroundColor: '#fff', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+    },
+    container: {
+        width: '100%',
+        height: '85%'
+    },
+    inputTitles: {
+        fontSize: 23,
+        marginBottom: 5
+    },
+    input: {
+        flexDirection: 'column',
+        margin : 10,
+    },
+    textInput: {
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 10,
+        height: '93%',
+        fontSize: 20,
+        textAlign: 'center',
+        padding: 5
+    },
+    button: {
+        width: 130, 
+        borderRadius: 4, 
+        backgroundColor: '#14274e', 
+        flexDirection: 'row', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: 40,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold', 
+        textAlign: 'center'
+    },
+    footer: {
+        width: '100%',
+        height: '15%',
+        backgroundColor: '#9AC4F8',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        borderTopColor: 'black',
+        borderTopWidth: 2
+    },
 });
 
 export default NewLogBookEntryScreen;
