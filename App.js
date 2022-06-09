@@ -20,6 +20,7 @@ import { PositionProvider } from "./contexts/GeolocationContext";
 import NewLogBookEntryScreen from "./screens/NewLogBookEntryScreen";
 import { UserProvider } from "./context/userContext";
 import { TripProvider } from "./context/tripContext";
+
 const screenOptionStyle = {
   headerStyle: {
     backgroundColor: "#9AC4F8",
@@ -78,7 +79,7 @@ export default function App() {
                     component={MapScreen}
                     options={{ headerShown: false }}
                   />
-                  <Stack.Screen name='Documents' component={DocumentScreen} />
+                  <Stack.Screen name='Documents' component={DetailEtapes} />
                   <Stack.Screen
                     name='Gestion des dépenses'
                     component={ExpansesScreen}

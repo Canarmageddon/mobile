@@ -52,8 +52,13 @@ function LogbookScreen({ navigation, route }) {
           data != undefined &&
           data.map((text) => (
             <>
+<<<<<<< Updated upstream
               <View style={{ borderColor: "black", borderWidth: 1 }}>
                 <Text>{text.creationDate}</Text>
+=======
+              <View style={styles.entrie}>
+                <Text>{new Date(text.creationDate).toLocaleDateString('fr-FR') + ' ' + new Date(text.creationDate).toLocaleTimeString()}</Text>
+>>>>>>> Stashed changes
                 <Text>{text.content}</Text>
               </View>
             </>
