@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
 import { useMutation, useQueryClient } from 'react-query';
@@ -31,18 +31,40 @@ function AddExpanseScreen({navigation, route}) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({creator, category, beneficiaries, trip, label, value})
+            body: JSON.stringify({creator, category, trip, label, value})
         })
           .then(checkStatus)
           .then(response => response.json())
           .then(data => {
               console.log(data);
+              beneficiaries.forEach(beneficiary => {
+                addBeneficiariesToExpanse(beneficiary, data.id);
+              });
               navigation.goBack();
               return data;
           })  
           .catch(error => {
               console.log(error.message);
           });
+    }
+    
+    const addBeneficiariesToExpanse = (beneficiary, expanseId) => {
+        return fetch(`http://vm-26.iutrs.unistra.fr/api/costs/${expanseId}/addBeneficiary`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: beneficiary})
+        })
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  
+                return data;
+            })  
+            .catch(error => {
+                console.log(error.message);
+            });
     }
 
     useEffect(() => {
@@ -85,7 +107,7 @@ function AddExpanseScreen({navigation, route}) {
                             // hideTags
                             items={route.params.users.map(user => {
                                 user = user.user;
-                                return {id: user.id, name: `${user.firstName} ${user.lastName}`, value: `${user.firstName} ${user.lastName}`}
+                                return {id: user.id, name: `${user.firstName} ${user.lastName}`, value: `${user.email}`}
                             })}
                             uniqueKey="id"
                             onSelectedItemsChange={(selectedItems) => setBeneficiaries(selectedItems)}
@@ -106,12 +128,12 @@ function AddExpanseScreen({navigation, route}) {
                 </View>
             </ScrollView>
             <View style={styles.footer}>
-                <Pressable onPress={() => { formIsComplete   
+                <TouchableOpacity onPress={() => { formIsComplete   
                     ? addItem.mutate({creator: user.id, category: category, beneficiaries: beneficiaries, trip: trip.id, label: label, value: parseFloat(costValue)})
                     : alert('Tous les champs ne sont pas remplis.');
                 }} style={styles.button}>
                     <Text style={styles.buttonText}>Ajouter</Text>                
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View>
     </>;

@@ -1,16 +1,15 @@
 import {
   Text,
-  Pressable,
+  TouchableOpacity,
   View,
   TextInput,
-  Button,
   StyleSheet,
   Switch,
 } from "react-native";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import checkStatus from "../utils/checkStatus";
-import { useUserUpdate } from "../context/userContext";
+import { useUserUpdate, useUser } from "../context/userContext";
 
 const ConnexionScreen = ({ navigation }) => {
   const [login, setLogin] = useState("");
@@ -18,17 +17,14 @@ const ConnexionScreen = ({ navigation }) => {
   const [displayPassword, setDisplayPassword] = useState(true);
   const [addrIsEmail, setAddrIsEmail] = useState(true);
   const userUpdate = useUserUpdate();
-
+  const [user, token] = useUser();
   const handleDisplayPassword = () => setDisplayPassword(!displayPassword);
 
-  const connect = (login, password) => {
-    // navigation.navigate('Mes voyages');
-    // fetch('http://vm-26.iutrs.unistra.fr/api/users/signin', {
-    fetch("http://vm-26.iutrs.unistra.fr/api/users/checkCredentials", {
+  const getToken = (login, password) => {
+    fetch("http://vm-26.iutrs.unistra.fr/api/login", {
       method: "POST",
       headers: {
-        accept: "application/ld+json",
-        "Content-Type": "application/ld+json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email: login,
@@ -36,8 +32,28 @@ const ConnexionScreen = ({ navigation }) => {
       }),
     })
       .then(checkStatus)
-      .then((response) => response.json())
+      .then(response => response.json())
       .then((data) => {
+        userUpdate[1](data.token);
+        whoAmI(data.token);
+      })
+      .catch((error) => {
+        alert(error.message);
+        console.log(error);
+      });
+  };
+
+  const whoAmI = (token) => {
+    fetch("http://vm-26.iutrs.unistra.fr/api/whoami", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    })
+      .then(checkStatus)
+      .then(response => response.json())
+      .then((data) => {
+        console.log(data);
         userUpdate[0](data);
         navigation.navigate("Mes voyages");
       })
@@ -71,23 +87,23 @@ const ConnexionScreen = ({ navigation }) => {
 
       <View style={styles.container}>
         <Switch value={displayPassword} onValueChange={setDisplayPassword} />
-        <Pressable onPress={handleDisplayPassword}>
+        <TouchableOpacity onPress={handleDisplayPassword}>
           <Text>Afficher le mot de passe</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
 
       
       <View >
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={() => {
             addrIsEmail
-              ? connect(login, password)
+              ? getToken(login, password)
               : alert("L'adresse e-mail n'est pas valide.");
           }}
         >
           <Text style={styles.buttonText}>Connexion</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </>
   );
@@ -118,20 +134,19 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   button: {
-    height: 50,
-    backgroundColor: "#1589FF",
     margin: 10,
-    borderColor: "black",
-    borderRadius: 5,
-    borderWidth: 1,
-    display: "flex",
-    justifyContent: "center",
+    width: '95%', 
+    borderRadius: 4, 
+    backgroundColor: '#14274e', 
+    justifyContent: 'center', 
+    alignSelf: 'center',
+    height: 50,
   },
   buttonText: {
-    margin: 5,
-    textAlign: "center",
-    fontWeight: "bold",
-    color: 'white',
-    fontSize: 15
+    color: '#fff',
+    fontWeight: 'bold', 
+    textAlign: 'center',
+    fontSize: 15,
+    margin: 5
   },
 });

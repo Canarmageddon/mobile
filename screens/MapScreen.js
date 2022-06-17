@@ -1,35 +1,29 @@
 // MapScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Animated,
   StyleSheet,
-  Text,
   View,
   Dimensions,
   Image,
-  Pressable,
-  Button,
-  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   MapView,
-  MarkerView,
   ShapeSource,
   Camera,
   PointAnnotation,
-  SymbolLayer,
-  VectorSource,
   LineLayer,
-  Callout,
+  SymbolLayer
 } from "../MapBox";
 import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import CustomAlert from "../components/CustomAlert";
 import TravelMenu from "../components/TravelMenu";
 import MarkerMenu from "../components/MarkerMenu";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
 
@@ -43,18 +37,26 @@ function getWindowSize() {
 
 function MapScreen({ navigation }) {
   const [position, setPosition] = usePosition();
+  const personMarker = require("../assets/personIcon.jpg");
   const blueMarker = require("../assets/blue_marker.png");
   const trip = useTrip();
   const slideAnim = useRef(new Animated.Value(0)).current;
   const menuHeight = (Dimensions.get("window").height * 18) / 100;
-  const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [markerSelectedType, setMarkerSelectedType] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
   const [isImageCharged, setIsImageCharged] = useState(false);
+
   const [stepIsSet, setStepIsSet] = useState(false);
-  const [centerCoordinate, setCenterCoordinate] = useState([0, 0]);
+  const geoJsonFeaturePosition = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Point",
+      coordinates: [position.longitude, position.latitude],
+    },
+  };
 
   const {
     isLoading: isLoadingSteps,
@@ -76,6 +78,7 @@ function MapScreen({ navigation }) {
   } = useQuery(["travels", trip.id], () => getTripTravels(trip.id), {
     enabled: stepIsSet,
   });
+  
 
   const getTripPOI = (tripId) => {
     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/poi`)
@@ -97,11 +100,6 @@ function MapScreen({ navigation }) {
       .then((data) => {
         // console.log(data);
         setStepIsSet(true);
-        setCenterCoordinate([
-          data[0].location.longitude,
-          data[0].location.latitude,
-        ]);
-
         return data;
       })
       .catch((error) => {
@@ -225,11 +223,12 @@ function MapScreen({ navigation }) {
             lineJoin: "round",
             lineCap: "round",
           }}
-          layerIndex={200}
+          layerIndex={100}
         />
       </ShapeSource>
     );
   };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -243,13 +242,6 @@ function MapScreen({ navigation }) {
             localizeLabels={true}
             compassViewPosition={3}
           >
-            {position != null && (
-              <PointAnnotation
-                key={"position"}
-                id={"position"}
-                coordinate={[position.longitude, position.latitude]}
-              />
-            )}
             <Camera 
               zoomLevel={5} 
               centerCoordinate={[position.longitude, position.latitude]}
@@ -279,14 +271,28 @@ function MapScreen({ navigation }) {
                       steps={steps}
                     />
                   );
-                })}
+            })}
+            <ShapeSource          //Icone de la position actuelle de l'utilisateur
+              id='positionShapeSource'
+              shape={geoJsonFeaturePosition}
+            >
+              <SymbolLayer 
+                id='positionIcon' 
+                style={{
+                  iconImage: personMarker,
+                  iconSize: 0.10,
+                  iconAllowOverlap: true,
+                  iconIgnorePlacement: true,
+                }}
+              />
+            </ShapeSource>
           </MapView>
-          <Pressable
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
             <AntDesign name='arrowleft' size={30} color='black' />
-          </Pressable>
+          </TouchableOpacity>
           <TravelMenu navigation={navigation} />
           {isMarkerSelected && markerSelected ? (
             <>

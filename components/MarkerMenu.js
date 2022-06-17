@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Animated, Text, View, Pressable, ScrollView } from "react-native";
+import { Animated, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 navigator.geolocation = require("@react-native-community/geolocation");
 
@@ -43,7 +43,7 @@ const MarkerMenu = ({
     markerMenuButton: {
       width: "100%",
       height: 50,
-      backgroundColor: "#90EE90",
+      backgroundColor: "#87CEFA",
       marginRight: "auto",
       marginLeft: "auto",
       marginTop: 10,
@@ -52,6 +52,12 @@ const MarkerMenu = ({
       borderWidth: 1,
       display: "flex",
       justifyContent: "center",
+      borderColor: "#2c75ff",
+      borderRadius: 5,
+      borderTopWidth: 2,
+      borderLeftWidth: 2,
+      borderRightWidth: 4,
+      borderBottomWidth: 4,
     },
     menu: {
       position: "absolute",
@@ -70,21 +76,23 @@ const MarkerMenu = ({
       alignItems: "center",
       overflow: "hidden",
       maxHeight: 23,
+      color: '#efefef'
     },
     buttonText: {
       margin: 5,
       textAlign: "center",
       fontWeight: "bold",
+      color: '#fefefe'
     },
   };
 
   const menuBackgroundColor =
     markerSelectedType === "step"
-      ? "#87CEFA"
+      ? "#14274e"
       : markerSelectedType === "poi"
-      ? "#ff2225"
+      ? "#dc3545"
       : markerSelectedType === "travel"
-      ? "#34c924"
+      ? "#90EE90"
       : null;
   const itemTitle =
     markerSelectedType === "step"
@@ -101,13 +109,13 @@ const MarkerMenu = ({
         <View
           style={[styles.closeMenu, { backgroundColor: menuBackgroundColor }]}
         >
-          <Pressable
+          <TouchableOpacity
             onPress={() => {
               startAnimation();
             }}
           >
-            <AntDesign name='arrowdown' size={24} color='black' />
-          </Pressable>
+            <AntDesign name='arrowdown' size={24} color='#efefef' />
+          </TouchableOpacity>
         </View>
         <View
           style={[styles.markerMenu, { backgroundColor: menuBackgroundColor }]}
@@ -123,22 +131,22 @@ const MarkerMenu = ({
             }}
           >
             <View style={{ width: "40%" }}>
-              <Pressable
+              <TouchableOpacity
                 style={styles.markerMenuButton}
-                onPress={() => navigation.navigate("Documents")}
+                onPress={() => navigation.navigate("Documents", {item: markerSelected, itemType: markerSelectedType})}
               >
                 <Text style={styles.buttonText}>Documents</Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
             <View style={{ width: "40%" }}>
-              <Pressable
+              <TouchableOpacity
                 style={styles.markerMenuButton}
                 onPress={() => {
                   setShowDescriptionPopup(true);
                 }}
               >
                 <Text style={styles.buttonText}>Description</Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

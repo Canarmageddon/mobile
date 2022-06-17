@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Pressable, FlatList, Button } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { useTrip } from "../context/tripContext";
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import checkStatus from "../utils/checkStatus";
 
-function MembersScreen({navigation}) {
+function MembersScreen() {
     const trip = useTrip();
 
     const { isLoading, isError, error, data: members } = useQuery(['tripMembers', trip.id], () => getTripMembers(trip.id));
@@ -24,25 +24,21 @@ function MembersScreen({navigation}) {
 
     const MemberListItem = ({ item: member }) => {
         return <>
-            <View key={member.id} style={styles.containerBorder}>
-                <View style={styles.membre}>
-                    <Text style={[styles.text, {fontWeight: 'bold'}]}>{member.user.firstName + ' ' + member.user.lastName}</Text>
-                </View>
+            <View key={member.user.id} style={styles.membre}>
+                <Text style={[styles.text, {fontWeight: 'bold'}]}>{member.user.firstName + ' ' + member.user.lastName}</Text>
             </View>
         </>
     }
 
     return <>
         <View style={styles.view}>
-            <View style={styles.containerBorder}>
-                {isLoading ? <Text>Loading...</Text> : 
-                    <FlatList
-                        data={members}
-                        renderItem={MemberListItem}
-                        keyExtractor={item => item.id}
-                    />
-                }
-            </View>
+            {isLoading ? <Text>Loading...</Text> : 
+                <FlatList
+                    data={members}
+                    renderItem={MemberListItem}
+                    keyExtractor={item => item.id}
+                />
+            }
         </View>
     </>;
 }
@@ -69,20 +65,20 @@ const styles = StyleSheet.create({
         borderWidth: 1, 
         borderRadius: 3,
     },
-    containerBorder: {
-        borderColor: 'black', 
-        borderWidth: 1, 
-        borderRadius: 3, 
-        backgroundColor: '#C0C0C0',
-        margin: 10,
-    },
     membre: {
+        margin: 5,
         borderRadius: 1,
-        backgroundColor: "#2c75ff",
+        backgroundColor: '#9AC4F8',
         padding: 10,
         flexDirection: 'row',
-        justifyContent: 'center'
-    }
+        justifyContent: 'center',
+        borderColor: '#000',
+        borderRadius: 5,
+        borderTopWidth: 2,
+        borderLeftWidth: 2,
+        borderRightWidth: 4,
+        borderBottomWidth: 4,
+    },
 });
 
 export default MembersScreen;

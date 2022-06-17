@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Animated, Text, View, Pressable } from "react-native";
+import { Animated, Text, View, TouchableOpacity } from "react-native";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 
 const TravelMenu = ({ navigation }) => {
@@ -8,8 +8,9 @@ const TravelMenu = ({ navigation }) => {
   const slideAnim3 = useRef(new Animated.Value(0)).current;
   const slideAnim4 = useRef(new Animated.Value(0)).current;
   const slideAnim5 = useRef(new Animated.Value(0)).current;
+  const slideAnim6 = useRef(new Animated.Value(0)).current;
   const [isMenuSpread, setIsMenuSpread] = useState(false);
-  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+  const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);
 
   const startAnimation = () => {
     setIsMenuSpread(!isMenuSpread);
@@ -37,9 +38,16 @@ const TravelMenu = ({ navigation }) => {
       duration: 500,
       useNativeDriver: true,
     }).start();
+
     Animated.timing(slideAnim5, {
       toValue: isMenuSpread ? 0 : 275,
       duration: 600,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(slideAnim6, {
+      toValue: isMenuSpread ? 0 : 330,
+      duration: 700,
       useNativeDriver: true,
     }).start();
   };
@@ -59,6 +67,9 @@ const TravelMenu = ({ navigation }) => {
     },
     slideTop5: {
       transform: [{ translateY: slideAnim5 }],
+    },
+    slideTop6: {
+      transform: [{ translateY: slideAnim6 }],
     },
     menuButton: {
       alignItems: "center",
@@ -83,7 +94,7 @@ const TravelMenu = ({ navigation }) => {
   return (
     <>
       <View style={styles.menu}>
-        <Pressable
+        <TouchableOpacity
           style={[styles.menuButton, { elevation: 12, zIndex: 12 }]}
           onPress={() => startAnimation()}
         >
@@ -92,7 +103,7 @@ const TravelMenu = ({ navigation }) => {
           ) : (
             <AntDesign name='down' size={30} color='black' style={{ top: 3 }} />
           )}
-        </Pressable>
+        </TouchableOpacity>
         <AnimatedPressable
           style={[
             styles.menuButton,
@@ -131,7 +142,7 @@ const TravelMenu = ({ navigation }) => {
           ]}
           onPress={() => navigation.navigate("Informations pratiques")}
         >
-          <FontAwesome5 name='info' size={28} color='black' />
+          <MaterialIcons name='wb-sunny' size={28} color='black' />
         </AnimatedPressable>
         <AnimatedPressable
           style={[
@@ -142,6 +153,16 @@ const TravelMenu = ({ navigation }) => {
           onPress={() => navigation.navigate("Membres")}
         >
           <MaterialIcons name='groups' size={28} color='black' />
+        </AnimatedPressable>
+        <AnimatedPressable
+          style={[
+            styles.menuButton,
+            styles.slideTop6,
+            { elevation: 5, zIndex: 5 },
+          ]}
+          onPress={() => navigation.navigate("Détail")}
+        >
+          <MaterialIcons name='location-on' size={28} color='black' />
         </AnimatedPressable>
       </View>
     </>

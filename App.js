@@ -80,7 +80,8 @@ export default function App() {
                     component={MapScreen}
                     options={{ headerShown: false }}
                   />
-                  <Stack.Screen name='Documents' component={DetailEtapes} />
+                  <Stack.Screen name='Documents' component={DocumentScreen} />
+                  <Stack.Screen name='Détail' component={DetailEtapes} />
                   <Stack.Screen
                     name='Gestion des dépenses'
                     component={ExpansesScreen}

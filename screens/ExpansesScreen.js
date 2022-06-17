@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Pressable, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 import { useTrip } from "../context/tripContext";
 import { useQuery, useQueryClient } from 'react-query';
 import checkStatus from "../utils/checkStatus";
@@ -120,18 +120,18 @@ function ExpansesScreen({navigation}) {
         <View style={styles.mainContainer}>
             <View style={styles.container}>
                 <View style={styles.menu}>
-                    <Pressable style={[styles.menuButton, {borderRightWidth: 1, backgroundColor: currentTab === 0 ? '#606060' : '#D3D3D3'}]} 
+                    <TouchableOpacity style={[styles.menuButton, {borderRightWidth: 1, backgroundColor: currentTab === 0 ? '#606060' : '#D3D3D3'}]} 
                         onPress={() => {currentTab !== 0 ? setCurrentTab(0) : null}}
                     >
                         <FontAwesome5 name='list' size={30} color={currentTab === 0 ? 'white' : 'black'}/>
                         <Text style={[styles.textFirstLine, {fontWeight: currentTab === 0 ? 'bold' : 'normal', color: currentTab === 0 ? '#fff' : '#000'}]}>Dépenses</Text>
-                    </Pressable>
-                    <Pressable style={[styles.menuButton, {borderLeftWidth: 1, backgroundColor: currentTab === 1 ? '#606060' : '#D3D3D3'}]} 
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.menuButton, {borderLeftWidth: 1, backgroundColor: currentTab === 1 ? '#606060' : '#D3D3D3'}]} 
                         onPress={() => {currentTab !== 1 ? setCurrentTab(1) : null}}
                     >
                         <AntDesign name="swap" size={30} color={currentTab === 1 ? 'white' : 'black'}/>
                         <Text style={[styles.textFirstLine, {fontWeight: currentTab === 1 ? 'bold' : 'normal',  color: currentTab === 1 ? '#fff' : '#000' }]}>Equilibre</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 </View>
                 {
                     currentTab === 0 ?
@@ -147,16 +147,16 @@ function ExpansesScreen({navigation}) {
                     currentTab === 1 ?
                     <View style={styles.expansesListContainer}>
                         <View style={styles.menu}>
-                            <Pressable style={[styles.menuButton, {borderRightWidth: 1, backgroundColor: currentSubTab === 0 ? '#606060' : '#D3D3D3'}]} 
+                            <TouchableOpacity style={[styles.menuButton, {borderRightWidth: 1, backgroundColor: currentSubTab === 0 ? '#606060' : '#D3D3D3'}]} 
                                 onPress={() => {currentSubTab !== 0 ? setCurrentSubTab(0) : null}}
                             >
                                 <Text style={[styles.textFirstLine, {fontWeight: currentSubTab === 0 ? 'bold' : 'normal', color: currentSubTab === 0 ? '#fff' : '#000'}]}>Total</Text>
-                            </Pressable>
-                            <Pressable style={[styles.menuButton, {borderLeftWidth: 1, backgroundColor: currentSubTab === 1 ? '#606060' : '#D3D3D3'}]} 
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.menuButton, {borderLeftWidth: 1, backgroundColor: currentSubTab === 1 ? '#606060' : '#D3D3D3'}]} 
                                 onPress={() => {currentSubTab !== 1 ? setCurrentSubTab(1) : null}}
                             >
                                 <Text style={[styles.textFirstLine, {fontWeight: currentSubTab === 1 ? 'bold' : 'normal',  color: currentSubTab === 1 ? '#fff' : '#000' }]}>Comparaison</Text>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                         {
                             currentSubTab === 0 ?
@@ -182,9 +182,9 @@ function ExpansesScreen({navigation}) {
                     : null
                 }
             </View>
-            <Pressable onPress={() => navigation.navigate('Ajouter une dépense', {users: users})} style={styles.button}>
+            <TouchableOpacity onPress={() => navigation.navigate('Ajouter une dépense', {users: users})} style={styles.button}>
                 <AntDesign name="plus" size={30} color="black"/>
-            </Pressable>
+            </TouchableOpacity>
             <View style={styles.footer}></View>
         </View>
     </>;
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
         width: 60, 
         borderRadius: 30, 
         borderColor: 'black', 
-        borderWidth: 2, 
+        borderWidth: 2,
         backgroundColor: '#90EE90', 
         justifyContent: 'center', 
         alignItems: 'center', 
@@ -247,24 +247,29 @@ const styles = StyleSheet.create({
         bottom: '10.5%'
     },
     expanse: {
-        width: '100%',
-        height: 80,
-        backgroundColor: '#D3D3D3',
-        borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 10,
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        margin: 5,
+        borderRadius: 1,
+        backgroundColor: '#9AC4F8',
+        padding: 10,
         flexDirection: 'row',
-        marginBottom: 5,
+        justifyContent: 'center',
+        borderColor: '#000',
+        borderRadius: 5,
+        borderTopWidth: 2,
+        borderLeftWidth: 2,
+        borderRightWidth: 4,
+        borderBottomWidth: 4,
     },
     textFirstLine: {
         fontSize: 18,
-        margin: 5
+        margin: 5,
+        color: '#fff',
+        fontWeight: 'bold'
     },
     textSecondLine: {
         fontSize: 13,
-        margin: 5
+        margin: 5,
+        color: '#fff',
     },
     text: {
         fontWeight: 'bold',

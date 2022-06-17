@@ -1,127 +1,142 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { useQuery, useQueryClient } from "react-query";
-import RNFetchBlob from "rn-fetch-blob";
-import checkStatus from "../utils/checkStatus";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { useQueryClient } from "react-query";
+import { useTrip } from "../context/tripContext";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 function DetailEtapes() {
-  useEffect(() => {
-    const { config, fs } = RNFetchBlob;
-    let fileDir = fs.dirs.DownloadDir; // this is the download directory. You can check the available directories in the wiki.
-    let options = {
-      fileCache: true,
-      addAndroidDownloads: {
-        useDownloadManager: true, // setting it to true will use the device's native download manager and will be shown in the notification bar.
-        notification: true,
-        path: fileDir + "new_file", // this is the path where your downloaded file will live in
-        description: "Downloading file.",
-      },
-    };
-    config(options)
-      .fetch(
-        "GET",
-        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      )
-      .then((res) => {
-        console.log(res);
-        // do some magic here
-      });
-  }, []);
-
+  const trip = useTrip();
+  const queryClient = useQueryClient();
+  const [currentTab, setCurrentTab] = useState(0);
   const [selectedStep, setSelectedStep] = useState(null);
-  const {
-    isLoading: isLoadingPoi,
-    isError: isErrorPoi,
-    error: erroPoi,
-    data: dataPoi,
-  } = useQuery("poi", () => getPoi());
-  const {
-    isLoading: isLoadingSteps,
-    isError: isErrorSteps,
-    error: erroSteps,
-    data: dataSteps,
-  } = useQuery("steps", () => getSteps());
-  const getPoi = () => {
-    return fetch("http://vm-26.iutrs.unistra.fr/api/trips/1/poi")
-      .then(checkStatus)
-      .then((response) => response.json())
-      .catch((error) => {
-        console.log(error.message);
-      });
-  };
-  const getSteps = () => {
-    return fetch("http://vm-26.iutrs.unistra.fr/api/trips/1/steps")
-      .then(checkStatus)
-      .then((response) => response.json())
-      .catch((error) => {
-        console.log(error.message);
-      });
-  };
+  const dataPoi = queryClient.getQueryData(["pointsOfInterest", trip.id]);
+  const dataSteps = queryClient.getQueryData(["steps", trip.id]);
+  
   const handlePress = (i) => {
     if (selectedStep == i) setSelectedStep(null);
     else setSelectedStep(i);
   };
-  if (isLoadingSteps) return <View></View>;
-  if (isErrorSteps) return <Text>{erroSteps}</Text>;
+
   return (
-    <View>
-      <Text style={styles.title}>Liste des étapes</Text>
-      {dataSteps.map((step, i) => (
-        <View key={i}>
-          <TouchableOpacity onPress={() => handlePress(i)}>
-            <Text>{step.description}</Text>
+    <View style={styles.mainContainer}>
+      <View style={styles.menu}>
+          <TouchableOpacity style={[styles.menuButton, {borderRightWidth: 1, backgroundColor: currentTab === 0 ? '#606060' : '#D3D3D3'}]} 
+              onPress={() => {currentTab !== 0 ? setCurrentTab(0) : null}}
+          >
+              <Text style={[styles.menuText, {fontWeight: currentTab === 0 ? 'bold' : 'normal', color: currentTab === 0 ? '#fff' : '#000'}]}>Liste des étapes</Text>
           </TouchableOpacity>
-          {selectedStep == i && !isLoadingPoi && !isErrorPoi ? (
-            <View>
-              {dataPoi.map((poi) =>
-                poi.step == step.id ? (
-                  <View>
-                    <Text>{poi.description}</Text>
-                    <View style={styles.smallSeparation}></View>
-                  </View>
-                ) : (
-                  <View></View>
-                ),
-              )}
-            </View>
-          ) : (
-            <View></View>
-          )}
-          <View style={styles.bigSeparation}></View>
-        </View>
-      ))}
-      {!isLoadingPoi && !isErrorPoi && (
-        <View>
-          <Text style={styles.title}>
-            Points d'intérets reliés à aucune étapes
-          </Text>
-          {dataPoi.map((poi, i) =>
-            poi.step == null ? (
-              <View key={i}>
-                <Text>{poi.description}</Text>
-                <View style={styles.smallSeparation}></View>
-              </View>
-            ) : (
-              <View></View>
-            ),
-          )}
-        </View>
-      )}
+          <TouchableOpacity style={[styles.menuButton, {borderLeftWidth: 1, backgroundColor: currentTab === 1 ? '#606060' : '#D3D3D3'}]} 
+              onPress={() => {currentTab !== 1 ? setCurrentTab(1) : null}}
+          >
+              <Text style={[styles.menuText, {fontWeight: currentTab === 1 ? 'bold' : 'normal',  color: currentTab === 1 ? '#fff' : '#000' }]}>Points d'intérets reliés à aucune étape</Text>
+          </TouchableOpacity>
+      </View>
+      {
+        currentTab === 0 ? 
+        <ScrollView>
+          {dataSteps.map((step, i) => (
+            <View key={i}>
+              {
+                selectedStep !== i ?
+                <TouchableOpacity style={styles.step} onPress={() => handlePress(i)}>
+                  <FontAwesome5 name={'chevron-right'} size={20} color={'#9AC4F8'}/> 
+                  <Text style={styles.stepText}>{step.description}</Text>
+                </TouchableOpacity> :
+                <>
+                  <TouchableOpacity style={[styles.step, {backgroundColor: '#9AC4F8', borderColor: '#2c75ff'}]} onPress={() => handlePress(i)}>
+                    <FontAwesome5 name={'chevron-down'} size={20} color={'#fff'}/>
+                    <Text style={[styles.stepText, {color: '#fff'}]}>{step.description}</Text>
+                  </TouchableOpacity>
+                
+                  {dataPoi.map((poi) => {
+                    poi.step == step.id ? 
+                    <View style={styles.poi}> 
+                      <Text style={styles.poiText}>{poi.description}</Text>
+                    </View> : 
+                    <View></View>
+                  })}
+                </>
+              }
+            </View>  
+        ))}
+        </ScrollView> :
+        currentTab === 1 ? 
+          <ScrollView>
+            {dataPoi.map((poi, i) =>
+              poi.step == null ? (
+                <View key={i} style={[styles.poi, {marginLeft: 1}]}>
+                  <Text style={styles.poiText}>{poi.description}</Text>
+                </View>
+              ) : (
+                <View></View>
+              )
+            )}
+          </ScrollView> : null
+      }
     </View>
   );
 }
 const styles = StyleSheet.create({
-  bigSeparation: {
-    height: 4,
-    backgroundColor: "#9AC4F8",
+  mainContainer: {
+    height: '100%',
   },
-  smallSeparation: {
-    height: 1,
-    backgroundColor: "#000000",
+  step: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 1,
+    marginBottom: 5,
+    padding: 5,
+    borderColor: "#9AC4F8",
+    borderRadius: 5,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 4,
+    borderBottomWidth: 4,
   },
-  title: {
-    fontSize: 25,
+  stepText: {
+    fontSize: 18,
+    margin: 10,
+    marginBottom: 5,
+    marginTop: 5,
+    color: '#000'
+  },
+  poi: {
+    margin: 1,
+    marginLeft: 30,
+    marginBottom: 5,
+    padding: 5,
+    borderColor: "#000",
+    borderRadius: 5,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 4,
+    borderBottomWidth: 4,
+  },
+  poiText: {
+    fontSize: 17,
+    margin: 10,
+    marginBottom: 5,
+    marginTop: 5
+  },
+  menuText:{
+    fontSize: 18,
+    margin: 5
+  },
+  menu: {
+    width: '100%',
+    height: '15%',
+    minHeight: '15%',
+    alignItems: 'center',
+    marginBottom: 5,
+    flexDirection: 'row',
+  },
+  menuButton: {
+      borderColor: 'black',
+      borderWidth: 2,
+      width: '50%',
+      height: '100%',
+      alignItems: 'center',
+      justifyContent: 'center'
   },
 });
 export default DetailEtapes;

@@ -3,12 +3,13 @@ import {
   StyleSheet,
   Text,
   View,
-  Pressable,
+  TouchableOpacity,
 } from "react-native";
 import checkStatus from "../utils/checkStatus";
 import { useTrip } from "../context/tripContext";
 import { useQuery } from "react-query";
 import { ScrollView } from "react-native-gesture-handler";
+
 function LogbookScreen({ navigation, route }) {
   const trip = useTrip();
   const { isLoading, isError, error, data } = useQuery(
@@ -26,7 +27,6 @@ function LogbookScreen({ navigation, route }) {
   };
 
   return (
-    <>
     <View style={styles.content}>
       <ScrollView style={styles.entriesContainer}>
         {!isError &&
@@ -35,24 +35,21 @@ function LogbookScreen({ navigation, route }) {
           data.map((text, index) => (
             <>
               <View key={index} style={styles.entrie}>
-                <Text>{new Date(text.creationDate).toLocaleDateString('fr-FR') + ' ' + new Date(text.creationDate).toLocaleTimeString()}</Text>
-                <Text>{text.content}</Text>
+                <Text style={styles.entriesText}>{new Date(text.creationDate).toLocaleDateString('fr-FR') + ' ' + new Date(text.creationDate).toLocaleTimeString()}</Text>
+                <Text style={styles.entriesText}>{text.content}</Text>
               </View>
             </>
           ))}
       </ScrollView>
-
       <View style={styles.buttonContainer}>
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate("Ajouter une entrée au journal")}
         >
           <Text style={styles.buttonText}>Ajouter une entrée au journal</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
-      
     </View>
-    </>
   );
 }
 
@@ -69,16 +66,24 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   entrie: {
-    width: '96%',
     minHeight: 70,
-    backgroundColor: '#D3D3D3',
-    borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 10,
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginLeft: 5,
-    marginBottom: 5
+    margin: 5,
+    borderRadius: 1,
+    backgroundColor: '#9AC4F8',
+    padding: 10,
+    borderColor: '#000',
+    borderRadius: 5,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 4,
+    borderBottomWidth: 4,
+  },
+  entriesText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15
   },
   buttonContainer: {
     width: '100%',

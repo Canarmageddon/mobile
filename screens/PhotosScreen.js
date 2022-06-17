@@ -1,15 +1,17 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Pressable, FlatList, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNFetchBlob from "rn-fetch-blob";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
+import { usePosition } from "../contexts/GeolocationContext";
 import { useQuery, useQueryClient } from 'react-query';
 import checkStatus from "../utils/checkStatus";
 import PhotosListItem from '../components/PhotoListItem';
 
 function PhotosScreen({navigation, route}) {
+    const [currentPosition, setCurrentPosition] = usePosition();
     const numColumns = 3;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);
@@ -112,11 +114,15 @@ function PhotosScreen({navigation, route}) {
         });
         form.append('creator', user.id);
         form.append('trip', trip.id);
+        form.append('album', null);
+        form.append('latitude', currentPosition.latitude);
+        form.append('longitude', currentPosition.longitude);
 
         return fetch('http://vm-26.iutrs.unistra.fr/api/pictures', {
             method: "POST",
             headers: {
                 "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`
             },
             body: form
         })
@@ -148,23 +154,23 @@ function PhotosScreen({navigation, route}) {
                 }
             </View>
             <View style={styles.buttonContainer}>
-                <Pressable onPress={() => navigation.navigate('Camera', {addPhoto})} style={styles.button}>
+                <TouchableOpacity onPress={() => navigation.navigate('Camera', {addPhoto})} style={styles.button}>
                     <Text style={styles.buttonText}>
                         Prendre une photo
                     </Text>
-                </Pressable>
-                <Pressable onPress={() => selectFile()} style={styles.button}>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => selectFile()} style={styles.button}>
                     <Text style={styles.buttonText}>
                         Importer une photo
                     </Text>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View>
         <Modal visible={isModalOpen} transparent={true} animationType="fade" onRequestClose={() => setIsModalOpen(false)}>
             <View style={styles.modalHeader}>
-                <Pressable onPress={() => setIsModalOpen(false)}>
+                <TouchableOpacity onPress={() => setIsModalOpen(false)}>
                     <Text style={styles.modalHeaderCloseText}>X</Text>
-                </Pressable>
+                </TouchableOpacity>
             </View>
             <ImageViewer imageUrls={photos} index={currentImageIndex} onSave={uri => saveImage(uri)} menuContext={{saveToLocal: 'Sauvegarder l\'image dans vos téléchargements', cancel: 'Annuler'}}/>
         </Modal>
@@ -196,11 +202,14 @@ const styles = StyleSheet.create({
         margin: 10,
         marginLeft: 15,
         overflow: 'scroll',
-        maxHeight: '85%',
+        height: '80%',
+        maxHeight: '80%',
     },
     buttonContainer: {
         width: '100%',
         height: '15%',
+        maxHeight: '15%',
+        minHeight: '15%',
         backgroundColor: '#9AC4F8',
         alignItems: 'center', 
         flexDirection: 'row',
@@ -214,7 +223,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         height: 40,
-        marginTop: -20
     },
     buttonText: {
         color: '#fff',

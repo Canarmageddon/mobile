@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Text, Pressable } from "react-native";
+import { StyleSheet, View, TextInput, Text, TouchableOpacity } from "react-native";
 import { StackActions } from "@react-navigation/native";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
+import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import { useMutation, useQueryClient } from "react-query";
+
 function NewLogBookEntryScreen({ navigation, route }) {
-  const sendEntry = ({ content, creator, trip }) =>
+  const sendEntry = ({ content, creator, trip, latitude, longitude }) =>
     fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries/new`, {
       method: "POST",
       headers: {
         accept: "application/ld+json",
         "Content-Type": "application/ld+json",
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         content,
         creator,
         trip,
+        latitude,
+        longitude
       }),
-    }).then((res) => res.json());
+    }).then(checkStatus).then((res) => res.json());
 
   const queryClient = useQueryClient();
   const trip = useTrip();
+  const [currentPosition, setCurrentPosition] = usePosition();
   const [user, token] = useUser();
   const [textValue, setTextValue] = useState("");
   const mutation = useMutation(sendEntry, {
@@ -36,6 +42,8 @@ function NewLogBookEntryScreen({ navigation, route }) {
       content: textValue,
       creator: user.id,
       trip: trip.id,
+      latitude: currentPosition.latitude, 
+      longitude: currentPosition.longitude,
     });
   };
 
@@ -54,9 +62,9 @@ function NewLogBookEntryScreen({ navigation, route }) {
           </View>
       </View>
       <View style={styles.footer}>
-          <Pressable onPress={() => handlePress()} style={styles.button}>
+          <TouchableOpacity onPress={() => handlePress()} style={styles.button}>
               <Text style={styles.buttonText}>Enregistrer</Text>                
-          </Pressable>
+          </TouchableOpacity>
       </View>
     </View>
   </>;
