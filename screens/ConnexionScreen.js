@@ -14,7 +14,7 @@ import { useUserUpdate, useUser } from "../context/userContext";
 const ConnexionScreen = ({ navigation }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [displayPassword, setDisplayPassword] = useState(true);
+  const [displayPassword, setDisplayPassword] = useState(false);
   const [addrIsEmail, setAddrIsEmail] = useState(true);
   const userUpdate = useUserUpdate();
   const [user, token] = useUser();
@@ -80,7 +80,7 @@ const ConnexionScreen = ({ navigation }) => {
             style={styles.textInput} 
             value={password}
             onChangeText={setPassword}
-            secureTextEntry={displayPassword}
+            secureTextEntry={!displayPassword}
             placeholder='mot de passe'
           />
       </View>

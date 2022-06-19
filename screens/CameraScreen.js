@@ -54,6 +54,7 @@ const CameraScreen = ({route, navigation}) => {
             await MediaLibrary.createAssetAsync(photo.uri)
             .then((res) => {
                 // console.log(res);
+                res.source = 'camera'
                 addItem.mutate(res);
                 navigation.navigate('Photos');
             })
@@ -79,7 +80,7 @@ const CameraScreen = ({route, navigation}) => {
     const addItem = useMutation((photo) => route.params.addPhoto(photo), {
         onSuccess: item => queryClient.setQueryData(
             ['tripPictures', trip.id],
-            items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
+            items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, databaseId: item.id, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
         )
     });
 

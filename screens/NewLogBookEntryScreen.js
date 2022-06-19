@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "react-query";
 
 function NewLogBookEntryScreen({ navigation, route }) {
   const sendEntry = ({ content, creator, trip, latitude, longitude }) =>
-    fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries/new`, {
+    fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries`, {
       method: "POST",
       headers: {
         accept: "application/ld+json",

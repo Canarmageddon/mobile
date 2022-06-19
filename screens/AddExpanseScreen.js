@@ -9,7 +9,7 @@ import MultiSelect from 'react-native-multiple-select';
 import { ScrollView } from "react-native-gesture-handler";
 
 function AddExpanseScreen({navigation, route}) {
-    const [user, token] = useUser();
+    const [connectedUser, token] = useUser();
     const trip = useTrip();
     const queryClient = useQueryClient();
     const [category, setCategory] = useState('Alimentaire');
@@ -18,53 +18,55 @@ function AddExpanseScreen({navigation, route}) {
     const [costValue, setCostValue] = useState(0);
     const [formIsComplete, setFormIsComplete] = useState(false);
 
-    const addItem = useMutation(({creator, category, beneficiaries, trip, label, value}) => addExpanse(creator, category, beneficiaries, trip, label, value), {
-        onSuccess: item => queryClient.setQueryData(
-            ['tripExpanses', trip.id],
-            items => [...items, item]
-        )
-    });
+    // const addItem = useMutation(({creator, category, beneficiaries, trip, label, value}) => addExpanse(creator, category, beneficiaries, trip, label, value), {
+    //     onSuccess: item => queryClient.setQueryData(
+    //         ['tripExpanses', trip.id],
+    //         items => [...items, item]
+    //     )
+    // });
 
     const addExpanse = (creator, category, beneficiaries, trip, label, value) => {
-        return fetch(`http://vm-26.iutrs.unistra.fr/api/costs/new`, {
+        return fetch(`http://vm-26.iutrs.unistra.fr/api/costs`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({creator, category, trip, label, value})
         })
-          .then(checkStatus)
-          .then(response => response.json())
-          .then(data => {
-              console.log(data);
-              beneficiaries.forEach(beneficiary => {
+        .then(checkStatus)
+        .then(response => response.json())
+        .then(data => {
+        //   console.log(data);
+            beneficiaries.forEach(beneficiary => {
                 addBeneficiariesToExpanse(beneficiary, data.id);
-              });
-              navigation.goBack();
-              return data;
-          })  
-          .catch(error => {
-              console.log(error.message);
-          });
+            });
+            queryClient.invalidateQueries(['tripExpanses', trip]);
+            navigation.goBack();
+            return data;
+        })  
+        .catch(error => {
+            console.log(error.message);
+        });
     }
     
     const addBeneficiariesToExpanse = (beneficiary, expanseId) => {
         return fetch(`http://vm-26.iutrs.unistra.fr/api/costs/${expanseId}/addBeneficiary`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({email: beneficiary})
         })
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);  
-                return data;
-            })  
-            .catch(error => {
-                console.log(error.message);
-            });
+        .then(checkStatus)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  
+        })  
+        .catch(error => {
+            console.log(error.message);
+        });
     }
 
     useEffect(() => {
@@ -85,7 +87,7 @@ function AddExpanseScreen({navigation, route}) {
                 </View>
                 <View style={styles.input}>
                     <Text style={styles.inputTitles}>Coût (en €)</Text>
-                    <TextInput style={styles.textInput} keyboardType='number-pad' value={costValue} onChangeText={setCostValue}/>
+                    <TextInput style={styles.textInput} keyboardType='number-pad' value={costValue.toString()} onChangeText={setCostValue}/>
                 </View>
                 <View style={styles.input}>
                     <Text style={styles.inputTitles}>Catégorie</Text>
@@ -104,12 +106,11 @@ function AddExpanseScreen({navigation, route}) {
                     <Text style={styles.inputTitles}>Bénéficiaires</Text>
                     <View style={styles.multiselector}>
                         <MultiSelect 
-                            // hideTags
                             items={route.params.users.map(user => {
                                 user = user.user;
                                 return {id: user.id, name: `${user.firstName} ${user.lastName}`, value: `${user.email}`}
-                            })}
-                            uniqueKey="id"
+                            }).filter(user => user.id !== connectedUser.id)}
+                            uniqueKey="value"
                             onSelectedItemsChange={(selectedItems) => setBeneficiaries(selectedItems)}
                             selectedItems={beneficiaries}
                             selectText="Sélectionner les bénéficiaires"
@@ -129,7 +130,8 @@ function AddExpanseScreen({navigation, route}) {
             </ScrollView>
             <View style={styles.footer}>
                 <TouchableOpacity onPress={() => { formIsComplete   
-                    ? addItem.mutate({creator: user.id, category: category, beneficiaries: beneficiaries, trip: trip.id, label: label, value: parseFloat(costValue)})
+                    // ? addItem.mutate({creator: connectedUser.id, category: category, beneficiaries: beneficiaries, trip: trip.id, label: label, value: parseFloat(costValue)})
+                    ? addExpanse(connectedUser.id, category, beneficiaries, trip.id, label, parseFloat(costValue))
                     : alert('Tous les champs ne sont pas remplis.');
                 }} style={styles.button}>
                     <Text style={styles.buttonText}>Ajouter</Text>                
