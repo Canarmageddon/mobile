@@ -49,6 +49,10 @@ function DocumentScreen({route}) {
         alert('Le fichier a été téléchargé.')
       })
       .catch((error) => {
+        if(error.message === "Expired JWT Token"){
+          refreshToken();
+          downloadFile(docId);
+        }
         console.log(error.message);
       });
   };
@@ -56,16 +60,14 @@ function DocumentScreen({route}) {
   return (
     <ScrollView style={styles.documentListContainer}>
     {
-      isLoading ? <Text>Loading...</Text> :
+      isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> :
         documents.length > 0 ?
         documents.map((document, index) => {
-          return (
-            <View key={index} style={styles.document}>
+          return <View key={index} style={styles.document}>
               <TouchableOpacity onPress={() => {downloadFile(document.id)}}>
                 <Text style={styles.text}>{document.name}</Text>
               </TouchableOpacity>
-            </View>
-          );
+            </View>;
         }) : 
         <View style={styles.noDocumentView}>
           <Text style={styles.noDocument}>Aucun document associé</Text>

@@ -1,5 +1,5 @@
 // MapScreen.js
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Animated,
@@ -20,10 +20,11 @@ import {
 } from "../MapBox";
 import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
+import distanceInKmBetweenCoordinates from "../utils/calculDistance";
 import CustomAlert from "../components/CustomAlert";
-import TravelMenu from "../components/TravelMenu";
+import TripMenu from "../components/TripMenu";
 import MarkerMenu from "../components/MarkerMenu";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
 
@@ -36,10 +37,12 @@ function getWindowSize() {
 }
 
 function MapScreen({ navigation }) {
-  const [position, setPosition] = usePosition();
+  const [position] = usePosition();
   const personMarker = require("../assets/personIcon.jpg");
   const blueMarker = require("../assets/blue_marker.png");
+  const finishFlag = require("../assets/finish-flag.jpg");
   const trip = useTrip();
+  const queryClient = useQueryClient();
   const slideAnim = useRef(new Animated.Value(0)).current;
   const menuHeight = (Dimensions.get("window").height * 18) / 100;
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
@@ -151,19 +154,20 @@ function MapScreen({ navigation }) {
   };
 
   const StepMarker = ({ index, marker }) => {
+
     return (
       <PointAnnotation
         id={"step-" + index}
         children={true}
         coordinate={[marker.location.longitude, marker.location.latitude]}
-        anchor={{ x: 0.5, y: 1 }}
+        anchor={index !== steps.length - 1 ? { x: 0.5, y: 1 } : { x: 0, y: 1 }}
         onSelected={() => {
           openItemMenu("step", marker);
         }}
       >
         <Image
           id={"pointCount" + index}
-          source={blueMarker}
+          source={index !== steps.length - 1 ? blueMarker : finishFlag}
           style={{ width: 24, height: 35 }}
           onLoad={() => {
             setIsImageCharged(true);
@@ -229,6 +233,18 @@ function MapScreen({ navigation }) {
     );
   };
 
+  useEffect(() => {
+    let isPOILessThan5KmAway = false;
+    pointsOfInterest?.map(poi => {
+      if(distanceInKmBetweenCoordinates(poi.location.latitude, poi.location.longitude, position.latitude, position.longitude) < 5){
+        isPOILessThan5KmAway = true;
+      }
+    })
+    if(isPOILessThan5KmAway){
+      alert("Vous êtes à moins de 5 kilomètres d'un point d'intérêt.");
+    }
+  }, [position]);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -293,7 +309,7 @@ function MapScreen({ navigation }) {
           >
             <AntDesign name='arrowleft' size={30} color='black' />
           </TouchableOpacity>
-          <TravelMenu navigation={navigation} />
+          <TripMenu navigation={navigation} />
           {isMarkerSelected && markerSelected ? (
             <>
               <MarkerMenu

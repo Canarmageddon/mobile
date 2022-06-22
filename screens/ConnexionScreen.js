@@ -9,7 +9,8 @@ import {
 import React from "react";
 import { useState } from "react";
 import checkStatus from "../utils/checkStatus";
-import { useUserUpdate, useUser } from "../context/userContext";
+import { useUserUpdate } from "../context/userContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConnexionScreen = ({ navigation }) => {
   const [login, setLogin] = useState("");
@@ -17,7 +18,6 @@ const ConnexionScreen = ({ navigation }) => {
   const [displayPassword, setDisplayPassword] = useState(false);
   const [addrIsEmail, setAddrIsEmail] = useState(true);
   const userUpdate = useUserUpdate();
-  const [user, token] = useUser();
   const handleDisplayPassword = () => setDisplayPassword(!displayPassword);
 
   const getToken = (login, password) => {
@@ -35,6 +35,7 @@ const ConnexionScreen = ({ navigation }) => {
       .then(response => response.json())
       .then((data) => {
         userUpdate[1](data.token);
+        AsyncStorage.setItem('@refresh_token', data.refresh_token);
         whoAmI(data.token);
       })
       .catch((error) => {
@@ -55,6 +56,7 @@ const ConnexionScreen = ({ navigation }) => {
       .then((data) => {
         console.log(data);
         userUpdate[0](data);
+        navigation.goBack();
         navigation.navigate("Mes voyages");
       })
       .catch((error) => {
@@ -63,8 +65,7 @@ const ConnexionScreen = ({ navigation }) => {
       });
   };
 
-  return (
-    <>
+  return <>
       <View style={styles.input}>
           <Text style={styles.inputTitles}>Identifiant : </Text>
           <TextInput 
@@ -84,15 +85,12 @@ const ConnexionScreen = ({ navigation }) => {
             placeholder='mot de passe'
           />
       </View>
-
       <View style={styles.container}>
         <Switch value={displayPassword} onValueChange={setDisplayPassword} />
         <TouchableOpacity onPress={handleDisplayPassword}>
           <Text>Afficher le mot de passe</Text>
         </TouchableOpacity>
       </View>
-
-      
       <View >
         <TouchableOpacity
           style={styles.button}
@@ -105,8 +103,7 @@ const ConnexionScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Connexion</Text>
         </TouchableOpacity>
       </View>
-    </>
-  );
+    </>;
 };
 
 export default ConnexionScreen;

@@ -32,6 +32,7 @@ function LogbookScreen({ navigation, route }) {
         {!isError &&
           !isLoading &&
           data != undefined &&
+          data.length > 0 ? 
           data.map((text, index) => (
             <>
               <View key={index} style={styles.entrie}>
@@ -39,7 +40,9 @@ function LogbookScreen({ navigation, route }) {
                 <Text style={styles.entriesText}>{text.content}</Text>
               </View>
             </>
-          ))}
+          ))
+          : <Text style={{textAlign: 'center', fontSize: 20}}>Il n'y a aucune entrée de journal.</Text>
+        } 
       </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -90,7 +93,9 @@ const styles = StyleSheet.create({
     height: '15%',
     backgroundColor: '#9AC4F8',
     alignItems: 'center', 
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderTopWidth: 2,
+    borderTopColor: '#000',
   },
   button: {
     borderRadius: 4, 

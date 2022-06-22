@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -20,7 +20,8 @@ function PhotosScreen({navigation, route}) {
     const trip = useTrip();
     const queryClient = useQueryClient();
     const { isLoading, isError, error, data: photos } = useQuery(['tripPictures', trip.id], () => getPhotos(trip.id));
-    
+    const { isLoading: isLoadingAlbum, isError: isErrorAlbum, error: errorAlbum, data: picturesInAlbum } = useQuery(['albumData', trip.id], () => getAlbumPictures(trip.album.id));
+
     const removeItem = useMutation((photoDatabaseId) => deletePicture(photoDatabaseId), {
         onSuccess: (_, photoDatabaseId) => {
             queryClient.setQueryData(
@@ -41,6 +42,22 @@ function PhotosScreen({navigation, route}) {
                 pictures.push({id: index, databaseId: picture.id, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${picture.id}`, name: picture.filePath});
             })
             return pictures;
+        })
+        .catch((error) => {
+            console.log(error.message);
+        });
+    }
+
+    const getAlbumPictures = albumID => {
+        return fetch(`http://vm-26.iutrs.unistra.fr/api/albums/${albumID}/data`)
+        .then(checkStatus)
+        .then((response) => response.json())
+        .then((data) => {
+            data = data.map(picture => {
+                return picture.id;
+            });
+            console.log(data);
+            return data;
         })
         .catch((error) => {
             console.log(error.message);
@@ -148,7 +165,13 @@ function PhotosScreen({navigation, route}) {
             return data;
         })        
         .catch(error => {
-            alert("Une erreur a eu lieu lors de l'ajout de la photo sur le serveur.");
+            if(error.message === "Expired JWT Token"){
+                refreshToken();
+                addPhoto(photo);
+            }
+            else{
+                alert("Une erreur a eu lieu lors de l'ajout de la photo sur le serveur.");
+            }
             console.log(error);
         });
     }
@@ -157,19 +180,30 @@ function PhotosScreen({navigation, route}) {
         if(photo.databaseId == null){
             alert('Veuillez patienter que les informations de la photo en base de données soit récupérées.');
         }
-        else{
-            alert('C\'est good');
+        else if(picturesInAlbum.includes(photos[currentImageIndex].databaseId)){
+            alert("La photo fait déjà partie de l'album.");
         }
-        // return fetch(`http://vm-26.iutrs.unistra.fr/api/`)
-        // .then(checkStatus)
-        // .then((response) => response.json())
-        // .then((data) => {
-        //     // console.log(data);
-        //     return data;
-        // })
-        // .catch((error) => {
-        //     console.log(error.message);
-        // });
+        else{
+            return fetch(`http://vm-26.iutrs.unistra.fr/api/pictures/${photo.databaseId}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({album: trip.album.id})
+            })
+            .then(checkStatus)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                alert("La photo a été ajoutée à l'album avec succès.");
+                queryClient.setQueryData(['albumData', trip.id], [...items, data.id]);
+                return data;
+            })
+            .catch((error) => {
+                console.log(error.message);
+            });
+        }
     }
 
     const deletePicture = (photoDatabaseId) => {
@@ -189,6 +223,10 @@ function PhotosScreen({navigation, route}) {
                 return queryClient.getQueryData(['tripPictures', trip.id]);
             })
             .catch((error) => {
+                if(error.message === "Expired JWT Token"){
+                    refreshToken();
+                    deletePicture(photoDatabaseId);
+                }
                 console.log(error.message);
             });
         }
@@ -197,7 +235,7 @@ function PhotosScreen({navigation, route}) {
     return <>
         <View style={styles.mainContainer}>
             <View style={styles.photosListContainer}>
-                {isLoading ? <Text style={styles.text}>Loading...</Text> : 
+                {isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> : 
                     photos.length > 0 ?
                     <FlatList
                         data={photos}
@@ -206,7 +244,7 @@ function PhotosScreen({navigation, route}) {
                         numColumns={numColumns}
                     /> 
                     : 
-                    <Text style={styles.text}>Aucune photo n'est associée à ce voyage.</Text>
+                    <Text style={{textAlign: 'center', fontSize: 20, flex : 1, flexWrap: 'wrap'}}>Aucune photo n'est associée à ce voyage.</Text>
                 }
             </View>
             <View style={styles.buttonContainer}>
@@ -316,6 +354,8 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         flexDirection: 'row',
         justifyContent: 'space-around',
+        borderTopWidth: 2,
+        borderTopColor: '#000',
     },
     button: {
         width: 130, 

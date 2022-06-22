@@ -1,14 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import React from "react";
 import checkStatus from "../utils/checkStatus";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { useTripUpdate } from "../context/tripContext";
 import { useUser } from "../context/userContext";
 
 const TripListScreen = ({ navigation }) => {
   const [user] = useUser();
   const tripUpdate = useTripUpdate();
-  const queryClient = useQueryClient();
 
   const { isLoading, isError, error, data: listeTrip } = useQuery(['listeTrip', user.id], () => getUserTrips(user.id));
 
@@ -17,8 +16,7 @@ const TripListScreen = ({ navigation }) => {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        // console.log(data['hydra:member']);
-        queryClient.setQueryData(['listeTrip', userId], listeTrip);
+        data = data.filter(trip => trip.isEnded === false);
         return data;
       })
       .catch((error) => {
@@ -44,12 +42,13 @@ const TripListScreen = ({ navigation }) => {
     <View>
       {
         isLoading ? 
-        <Text style={styles.text}>Loading...</Text> : 
+        <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> : 
         <FlatList
           data={listeTrip}
           renderItem={TripListItem}
           keyExtractor={(item) => item.id}
         />
+        // <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> 
       }
     </View>
   );
@@ -78,9 +77,5 @@ const styles = StyleSheet.create({
     margin: 5,
     fontSize: 18,
     fontWeight: 'bold'
-  },
-  text: {
-    fontSize: 15,
-    margin: 5,
   },
 });

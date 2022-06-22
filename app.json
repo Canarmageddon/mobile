@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "acrobatt_mobile",
+    "name": "Duck-Trotter",
     "slug": "acrobatt_mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "acrobatt.canarmageddon",

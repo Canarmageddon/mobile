@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MapScreen } from "./screens/MapScreen";
+import HomeScreen from "./screens/HomeScreen";
 import DocumentScreen from "./screens/DocumentScreen";
 import LogbookScreen from "./screens/LogbookScreen";
 import ExpansesScreen from "./screens/ExpansesScreen";
@@ -25,6 +24,8 @@ import { TripProvider } from "./context/tripContext";
 const screenOptionStyle = {
   headerStyle: {
     backgroundColor: "#9AC4F8",
+    borderBottomWidth: 2,
+    borderBottomColor: '#000'
   },
   headerTintColor: "white",
   headerBackTitle: "Back",
@@ -32,8 +33,6 @@ const screenOptionStyle = {
 };
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,9 +69,10 @@ export default function App() {
             <QueryClientProvider client={queryClient}>
               <NavigationContainer>
                 <Stack.Navigator
-                  initialRouteName='Connexion'
+                  initialRouteName='Accueil'
                   screenOptions={screenOptionStyle}
                 >
+                  <Stack.Screen name='Accueil' component={HomeScreen} options={{ headerShown: false }}/>
                   <Stack.Screen name='Connexion' component={ConnexionScreen} />
                   <Stack.Screen name='Mes voyages' component={TripListScreen} />
                   <Stack.Screen
@@ -81,7 +81,7 @@ export default function App() {
                     options={{ headerShown: false }}
                   />
                   <Stack.Screen name='Documents' component={DocumentScreen} />
-                  <Stack.Screen name='Détail' component={DetailEtapes} />
+                  <Stack.Screen name="Listes des étapes et points d'intérêt" component={DetailEtapes} />
                   <Stack.Screen
                     name='Gestion des dépenses'
                     component={ExpansesScreen}

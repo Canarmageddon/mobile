@@ -25,14 +25,15 @@ function MembersScreen() {
     const MemberListItem = ({ item: member }) => {
         return <>
             <View key={member.user.id} style={styles.membre}>
-                <Text style={[styles.text, {fontWeight: 'bold'}]}>{member.user.firstName + ' ' + member.user.lastName}</Text>
+                <Text style={[styles.text, {fontWeight: 'bold'}]}>{member.user.name ?? member.user.firstName + ' ' + member.user.lastName}</Text>
+                <Text style={styles.text}>{member.user.name ? 'Invité' : 'Editeur'}</Text>
             </View>
         </>
     }
 
     return <>
         <View style={styles.view}>
-            {isLoading ? <Text>Loading...</Text> : 
+            {isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> : 
                 <FlatList
                     data={members}
                     renderItem={MemberListItem}
@@ -58,7 +59,8 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fefefe',
-        margin: 5
+        marginHorizontal: 25,
+        marginVertical: 5
     },
     button: {
         margin: 10,
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#9AC4F8',
         padding: 10,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         borderColor: '#000',
         borderRadius: 5,
         borderTopWidth: 2,

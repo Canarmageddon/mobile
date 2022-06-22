@@ -8,7 +8,7 @@ import checkStatus from "../utils/checkStatus";
 import { useMutation, useQueryClient } from "react-query";
 
 function NewLogBookEntryScreen({ navigation, route }) {
-  const sendEntry = ({ content, creator, trip, latitude, longitude }) =>
+  const sendEntry = ({ content, creator, trip, album, latitude, longitude }) =>
     fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries`, {
       method: "POST",
       headers: {
@@ -20,10 +20,20 @@ function NewLogBookEntryScreen({ navigation, route }) {
         content,
         creator,
         trip,
+        album,
         latitude,
         longitude
       }),
-    }).then(checkStatus).then((res) => res.json());
+    })
+    .then(checkStatus)
+    .then((res) => res.json())
+    .catch((error) => {
+      if(error.message === "Expired JWT Token"){
+        refreshToken();
+        sendEntry({ content, creator, trip, album, latitude, longitude });
+      }
+      console.log(error);
+    });
 
   const queryClient = useQueryClient();
   const trip = useTrip();
@@ -42,6 +52,7 @@ function NewLogBookEntryScreen({ navigation, route }) {
       content: textValue,
       creator: user.id,
       trip: trip.id,
+      album: trip.album.id,
       latitude: currentPosition.latitude, 
       longitude: currentPosition.longitude,
     });
@@ -88,15 +99,18 @@ const styles = StyleSheet.create({
     input: {
         flexDirection: 'column',
         margin : 10,
+        justifyContent: 'center',
+        height: '93%'
     },
     textInput: {
         borderWidth: 2,
         borderColor: 'black',
         borderRadius: 10,
-        height: '93%',
+        
+        height: 'auto',
         fontSize: 20,
         textAlign: 'center',
-        padding: 5
+        padding: 15
     },
     button: {
         width: 130, 

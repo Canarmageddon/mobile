@@ -1,16 +1,20 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Animated, Text, View, TouchableOpacity } from "react-native";
+import React, { useRef, useState } from "react";
+import { Animated, View, TouchableOpacity, Modal, Text } from "react-native";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useUserUpdate } from "../context/userContext";
 
-const TravelMenu = ({ navigation }) => {
+const TripMenu = ({ navigation }) => {
   const slideAnim1 = useRef(new Animated.Value(0)).current;
   const slideAnim2 = useRef(new Animated.Value(0)).current;
   const slideAnim3 = useRef(new Animated.Value(0)).current;
   const slideAnim4 = useRef(new Animated.Value(0)).current;
   const slideAnim5 = useRef(new Animated.Value(0)).current;
   const slideAnim6 = useRef(new Animated.Value(0)).current;
+  const slideAnim7 = useRef(new Animated.Value(0)).current;
   const [isMenuSpread, setIsMenuSpread] = useState(false);
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
   const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);
+  const userUpdate = useUserUpdate();
 
   const startAnimation = () => {
     setIsMenuSpread(!isMenuSpread);
@@ -50,8 +54,18 @@ const TravelMenu = ({ navigation }) => {
       duration: 700,
       useNativeDriver: true,
     }).start();
+
+    Animated.timing(slideAnim7, {
+      toValue: isMenuSpread ? 0 : -55,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
   };
 
+  async function deleteRefreshToken(){
+    await AsyncStorage.removeItem('@refresh_token');
+  }
+  
   const styles = {
     slideTop1: {
       transform: [{ translateY: slideAnim1 }],
@@ -71,6 +85,9 @@ const TravelMenu = ({ navigation }) => {
     slideTop6: {
       transform: [{ translateY: slideAnim6 }],
     },
+    slideLeft: {
+      transform: [{ translateX: slideAnim7 }],
+    },
     menuButton: {
       alignItems: "center",
       justifyContent: "center",
@@ -89,6 +106,53 @@ const TravelMenu = ({ navigation }) => {
       right: 10,
       top: 10,
     },
+    modalButton: {
+      width: '48%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderColor: '#2c75ff',
+      backgroundColor: '#9AC4F8',
+      borderLeftWidth: 2,
+      borderTopWidth: 2,
+      borderBottomWidth: 4,
+      borderRightWidth: 4,
+      borderRadius: 5,
+      marginBottom: 10,
+    }, 
+    modalButtonText: {
+      color: '#fff', 
+      margin: 15
+    },
+    modalButtonView: {
+      margin: 10, 
+      width: '95%', 
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      justifyContent: 'space-evenly'
+    }, 
+    modalTextView: {
+      margin: 10, 
+      width: '90%'
+    }, 
+    modalText: {
+      fontSize: 20, 
+      marginTop: 5
+    }, 
+    modalWindow: {
+      alignItems: 'center', 
+      justifyContent: 'space-between', 
+      backgroundColor: '#fff', 
+      height: 200, 
+      width: '90%', 
+      borderRadius: 7, 
+      elevation: 10
+    },
+    modalContainer: {
+      flex: 1, 
+      backgroundColor: 'rgba(52, 52, 52, 0.8)', 
+      alignItems: 'center', 
+      justifyContent: 'center'
+    }
   };
 
   return (
@@ -160,14 +224,54 @@ const TravelMenu = ({ navigation }) => {
             styles.slideTop6,
             { elevation: 5, zIndex: 5 },
           ]}
-          onPress={() => navigation.navigate("Détail")}
+          onPress={() => navigation.navigate("Listes des étapes et points d'intérêt")}
         >
           <MaterialIcons name='location-on' size={28} color='black' />
         </AnimatedPressable>
+        <AnimatedPressable
+          style={[
+            styles.menuButton,
+            styles.slideLeft,
+            { elevation: 5, zIndex: 5, backgroundColor: '#dc3545' },
+          ]}
+          onPress={() => {
+            setShowConfirmationPopup(true);
+          }}
+        >
+          <MaterialIcons name='logout' size={28} color='black' />
+        </AnimatedPressable>
+      </View>
+      <View>
+        <Modal visible={showConfirmationPopup} transparent={true} animationType="fade">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalWindow}>
+              <View style={styles.modalTextView}>
+                <Text style={styles.modalText}>Êtes-vous sûr de vouloir vous déconnecter ?</Text>
+              </View>
+              <View style={styles.modalButtonView}>
+                <TouchableOpacity
+                  onPress={() => setShowConfirmationPopup(false)}
+                  style={styles.modalButton}>
+                  <Text style={styles.modalButtonText}>Annuler</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    userUpdate[0](null);
+                    userUpdate[1](null); 
+                    deleteRefreshToken();
+                    navigation.navigate("Accueil");
+                  }}
+                  style={styles.modalButton}>
+                  <Text style={styles.modalButtonText}>Confirmer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </>
   );
 };
 
 // You can then use your `SlideInView` in place of a `View` in your components:
-export default TravelMenu;
+export default TripMenu;

@@ -92,7 +92,7 @@ const MarkerMenu = ({
       : markerSelectedType === "poi"
       ? "#dc3545"
       : markerSelectedType === "travel"
-      ? "#90EE90"
+      ? "#32CD32"
       : null;
   const itemTitle =
     markerSelectedType === "step"
