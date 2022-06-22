@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { useQueryClient } from "react-query";
 import { useTrip } from "../context/tripContext";
@@ -20,6 +20,21 @@ function DetailEtapes({navigation}) {
     if (selectedStep == i) setSelectedStep(null);
     else setSelectedStep(i);
   };
+
+  useEffect(() => {
+    let newSelectedStepIndex = null;
+    let newSelectedStep = null;
+    dataSteps.map((step, index) => {
+      if(step.date != null 
+        && new Date(step.date).toLocaleDateString('fr-FR') < new Date(Date.now()).toLocaleDateString('fr-FR') 
+        && new Date(step.date).toLocaleDateString('fr-FR') >= new Date(newSelectedStep ? newSelectedStep.date : step.date).toLocaleDateString('fr-FR')
+      ){
+        newSelectedStep = step;
+        newSelectedStepIndex = index;
+      }
+    })
+    setSelectedStep(newSelectedStepIndex);
+  }, []);
 
   const defineTripAsEnded = (tripID) => {
     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripID}`, {

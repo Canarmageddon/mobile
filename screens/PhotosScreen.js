@@ -56,7 +56,7 @@ function PhotosScreen({navigation, route}) {
             data = data.map(picture => {
                 return picture.id;
             });
-            console.log(data);
+            // console.log(data);
             return data;
         })
         .catch((error) => {
@@ -113,16 +113,10 @@ function PhotosScreen({navigation, route}) {
                 console.log('ImagePicker Error: ', res.error);
             } else {
                 let source = res.assets;
-                let picturesListLength = queryClient.getQueryData(['tripPictures', trip.id]).length;
                 source.map(photo => {
                     photo.fileName = photo.fileName.replace('rn_image_picker_lib_temp_', '');
                     photo.source = 'gallery';
-                    queryClient.setQueryData(
-                        ['tripPictures', trip.id],
-                        items => [...items, {id: picturesListLength, databaseId: null, url: photo.uri, name: photo.fileName}]
-                    );
                     addPhoto(photo);
-                    picturesListLength++;
                 })
             }
         });
@@ -133,6 +127,12 @@ function PhotosScreen({navigation, route}) {
         const form = new FormData();
         const uriParts = name.split('.');
         const type = uriParts[uriParts.length - 1];
+        const picturesListLength = queryClient.getQueryData(['tripPictures', trip.id]).length;
+
+        queryClient.setQueryData(
+            ['tripPictures', trip.id],
+            items => [...items, {id: picturesListLength, databaseId: null, url: photo.uri, name: name}]
+        );
 
         form.append('file', {
             uri: photo.uri,
@@ -172,6 +172,10 @@ function PhotosScreen({navigation, route}) {
             else{
                 alert("Une erreur a eu lieu lors de l'ajout de la photo sur le serveur.");
             }
+            queryClient.setQueryData(
+                ['tripPictures', trip.id],
+                items => items.filter(item => item.id !== picturesListLength)
+            );
             console.log(error);
         });
     }
@@ -197,7 +201,7 @@ function PhotosScreen({navigation, route}) {
             .then((data) => {
                 console.log(data);
                 alert("La photo a été ajoutée à l'album avec succès.");
-                queryClient.setQueryData(['albumData', trip.id], [...items, data.id]);
+                queryClient.setQueryData(['albumData', trip.id], items => [...items, data.id]);
                 return data;
             })
             .catch((error) => {

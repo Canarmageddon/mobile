@@ -3,10 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   Image,
-  TouchableOpacity,
-  Button,
 } from "react-native";
 import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";

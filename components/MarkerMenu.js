@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Animated, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { Animated, Text, View, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 navigator.geolocation = require("@react-native-community/geolocation");
 

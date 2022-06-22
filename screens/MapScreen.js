@@ -51,7 +51,6 @@ function MapScreen({ navigation }) {
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
   const [isImageCharged, setIsImageCharged] = useState(false);
 
-  const [stepIsSet, setStepIsSet] = useState(false);
   const geoJsonFeaturePosition = {
     type: "Feature",
     properties: {},
@@ -78,9 +77,7 @@ function MapScreen({ navigation }) {
     isError: isErrorTravels,
     error: errorTravels,
     data: travels,
-  } = useQuery(["travels", trip.id], () => getTripTravels(trip.id), {
-    enabled: stepIsSet,
-  });
+  } = useQuery(["travels", trip.id], () => getTripTravels(trip.id));
   
 
   const getTripPOI = (tripId) => {
@@ -88,11 +85,11 @@ function MapScreen({ navigation }) {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        // console.log(data);
+        //console.log(data);
         return data;
       })
       .catch((error) => {
-        //        console.log(error.message);
+        //console.log(error.message);
       });
   };
 
@@ -102,11 +99,10 @@ function MapScreen({ navigation }) {
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        setStepIsSet(true);
         return data;
       })
       .catch((error) => {
-        //  console.log(error.message);
+        //console.log(error.message);
       });
   };
 
@@ -115,7 +111,7 @@ function MapScreen({ navigation }) {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        //     console.log(data);
+        //console.log(data);
         return data;
       })
       .catch((error) => {
@@ -190,16 +186,11 @@ function MapScreen({ navigation }) {
     );
   };
 
-  const Travel = ({ index, travel, steps }) => {
+  const Travel = ({ index, travel }) => {
     let locationStart, locationEnd;
 
-    steps.map((step) => {
-      if (step.id === travel.start.id) {
-        locationStart = [step.location.longitude, step.location.latitude];
-      } else if (step.id === travel.end.id) {
-        locationEnd = [step.location.longitude, step.location.latitude];
-      }
-    });
+    locationStart = [travel.start.location.longitude, travel.start.location.latitude];
+    locationEnd = [travel.end.location.longitude, travel.end.location.latitude];
 
     const geoJsonFeature = {
       type: "Feature",
@@ -245,6 +236,17 @@ function MapScreen({ navigation }) {
     }
   }, [position]);
 
+  const getStepDate = (step) => {
+    if(step.date){
+      let myDate = new Date(step.date);
+      let splitedDate = myDate.toLocaleDateString('fr-FR').split('/');
+      return splitedDate[1] + '/' + splitedDate[0] + '/' + splitedDate[2];  
+    }
+    else{
+      return null;
+    }
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -276,17 +278,16 @@ function MapScreen({ navigation }) {
                     <POIMarker key={index} index={index} marker={marker} />
                   );
                 })}
-            {!stepIsSet || isLoadingTravels
+            {isLoadingTravels
               ? null
-              : travels.map((travel, index) => {
-                  return (
-                    <Travel
-                      key={index}
-                      index={index}
-                      travel={travel}
-                      steps={steps}
-                    />
-                  );
+              :  travels.map((travel, index) => {
+                    return (
+                      <Travel
+                        key={index}
+                        index={index}
+                        travel={travel}
+                      />
+                    );
             })}
             <ShapeSource          //Icone de la position actuelle de l'utilisateur
               id='positionShapeSource'
@@ -322,19 +323,22 @@ function MapScreen({ navigation }) {
               />
               <CustomAlert
                 displayMsg={
-                  (markerSelectedType === "step"
+                  ((markerSelectedType === "step"
                     ? markerSelected.description
                     : markerSelectedType === "poi"
                     ? markerSelected.location.name
                     : markerSelectedType === "travel"
-                    ? "Durée : " + markerSelected.duration
-                    : null) +
+                    ? "Distance : " + distanceInKmBetweenCoordinates(markerSelected.start.location.latitude, markerSelected.start.location.longitude, markerSelected.end.location.latitude, markerSelected.end.location.longitude).toFixed(2) +  'KM'
+                    : null) ?? 'Aucune description disponible.') +
+                  (markerSelectedType === "step" 
+                    ? '\n\nDate de commencement supposée : ' + (getStepDate(markerSelected) ?? 'Aucune date saisie.') 
+                    : "") +
                   (markerSelectedType !== "travel"
-                    ? "\nLongitude : " +
+                    ? "\n\nLongitude : " +
                       markerSelected.location.longitude +
                       "\nLatitude : " +
                       markerSelected.location.latitude
-                    : "  ")
+                    : "")
                 }
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}

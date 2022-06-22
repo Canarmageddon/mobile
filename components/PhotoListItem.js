@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default function PhotosListItem({photo, openModal}) {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     photo = photo.item;
     return (
         <TouchableOpacity onPress={() => {openModal(photo.id, photo.name)}}>
