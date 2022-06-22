@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, View, Pressable, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 
 const styles = StyleSheet.create({
     photoLoading: {
@@ -18,10 +18,10 @@ const styles = StyleSheet.create({
 });
 
 export default function PhotosListItem({photo, openModal}) {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     photo = photo.item;
     return (
-        <Pressable onPress={() => {openModal(photo.id, photo.name)}}>
+        <TouchableOpacity onPress={() => {openModal(photo.id, photo.name)}}>
             <View style={[styles.photoLoading, {display: isLoading ? "flex" : "none"}]}>
                 <ActivityIndicator size="large" color="#0000ff"/> 
             </View>
@@ -35,6 +35,6 @@ export default function PhotosListItem({photo, openModal}) {
                     setIsLoading(false);
                 }}
             ></Image>
-        </Pressable>
+        </TouchableOpacity>
     );
 }

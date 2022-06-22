@@ -18,6 +18,7 @@ export function useTokenUpdate() {
 export function UserProvider({ children }) {
   const [user, setUser] = useState([]);
   const [token, setToken] = useState("");
+  // const [token, setToken] = useState("");
   const changeUser = (user) => {
     setUser(user);
   };

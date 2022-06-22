@@ -6,17 +6,11 @@ import {
 } from "react-native";
 import React, {useState, useEffect} from "react";
 import {Camera} from 'expo-camera'
-import { useQueryClient, useMutation } from 'react-query';
-import { useTrip } from "../context/tripContext";
-import { useUser } from "../context/userContext";
-import checkStatus from "../utils/checkStatus";
+import { useMutation } from 'react-query';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
 import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = ({route, navigation}) => {
-    const trip = useTrip();
-    const [user, token] = useUser();
-    const queryClient = useQueryClient();
     const [startCamera,setStartCamera] = React.useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [capturedImage, setCapturedImage] = useState(null);
@@ -54,6 +48,7 @@ const CameraScreen = ({route, navigation}) => {
             await MediaLibrary.createAssetAsync(photo.uri)
             .then((res) => {
                 // console.log(res);
+                res.source = 'camera'
                 addItem.mutate(res);
                 navigation.navigate('Photos');
             })
@@ -76,12 +71,7 @@ const CameraScreen = ({route, navigation}) => {
         navigation.goBack();
     }
 
-    const addItem = useMutation((photo) => route.params.addPhoto(photo), {
-        onSuccess: item => queryClient.setQueryData(
-            ['tripPictures', trip.id],
-            items => [...items, {id: queryClient.getQueryData(['tripPictures', trip.id]).length, url: `http://vm-26.iutrs.unistra.fr/api/pictures/file/${item.id}`, name: item.filePath}]
-        )
-    });
+    const addItem = useMutation((photo) => route.params.addPhoto(photo));
 
     const CameraPreview = ({photo, retakePicture, savePhoto}) => {
         return (

@@ -1,27 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Text, Pressable } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, TextInput, Text, TouchableOpacity } from "react-native";
 import { StackActions } from "@react-navigation/native";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
+import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import { useMutation, useQueryClient } from "react-query";
+
 function NewLogBookEntryScreen({ navigation, route }) {
-  const sendEntry = ({ content, creator, trip }) =>
-    fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries/new`, {
+  const sendEntry = ({ content, creator, trip, album, latitude, longitude }) =>
+    fetch(`http://vm-26.iutrs.unistra.fr/api/log_book_entries`, {
       method: "POST",
       headers: {
         accept: "application/ld+json",
         "Content-Type": "application/ld+json",
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         content,
         creator,
         trip,
+        album,
+        latitude,
+        longitude
       }),
-    }).then((res) => res.json());
+    })
+    .then(checkStatus)
+    .then((res) => res.json())
+    .catch((error) => {
+      if(error.message === "Expired JWT Token"){
+        refreshToken();
+        sendEntry({ content, creator, trip, album, latitude, longitude });
+      }
+      console.log(error);
+    });
 
   const queryClient = useQueryClient();
   const trip = useTrip();
+  const [currentPosition, setCurrentPosition] = usePosition();
   const [user, token] = useUser();
   const [textValue, setTextValue] = useState("");
   const mutation = useMutation(sendEntry, {
@@ -36,6 +52,9 @@ function NewLogBookEntryScreen({ navigation, route }) {
       content: textValue,
       creator: user.id,
       trip: trip.id,
+      album: trip.album.id,
+      latitude: currentPosition.latitude, 
+      longitude: currentPosition.longitude,
     });
   };
 
@@ -54,9 +73,9 @@ function NewLogBookEntryScreen({ navigation, route }) {
           </View>
       </View>
       <View style={styles.footer}>
-          <Pressable onPress={() => handlePress()} style={styles.button}>
+          <TouchableOpacity onPress={() => handlePress()} style={styles.button}>
               <Text style={styles.buttonText}>Enregistrer</Text>                
-          </Pressable>
+          </TouchableOpacity>
       </View>
     </View>
   </>;
@@ -80,15 +99,18 @@ const styles = StyleSheet.create({
     input: {
         flexDirection: 'column',
         margin : 10,
+        justifyContent: 'center',
+        height: '93%'
     },
     textInput: {
         borderWidth: 2,
         borderColor: 'black',
         borderRadius: 10,
-        height: '93%',
+        
+        height: 'auto',
         fontSize: 20,
         textAlign: 'center',
-        padding: 5
+        padding: 15
     },
     button: {
         width: 130, 

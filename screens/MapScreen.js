@@ -1,60 +1,58 @@
 // MapScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Animated,
   StyleSheet,
-  Text,
   View,
   Dimensions,
   Image,
-  Pressable,
-  Button,
-  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   MapView,
-  MarkerView,
   ShapeSource,
   Camera,
   PointAnnotation,
-  SymbolLayer,
-  VectorSource,
   LineLayer,
-  Callout,
+  SymbolLayer
 } from "../MapBox";
 import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
+import distanceInKmBetweenCoordinates from "../utils/calculDistance";
 import CustomAlert from "../components/CustomAlert";
-import TravelMenu from "../components/TravelMenu";
+import TripMenu from "../components/TripMenu";
 import MarkerMenu from "../components/MarkerMenu";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-function getWindowSize() {
-  // return "width : " +  windowWidth + ", height : " + windowHeight;
-  return "width : 100, height : 50";
-}
-
 function MapScreen({ navigation }) {
-  const [position, setPosition] = usePosition();
+  const [position] = usePosition();
+  const personMarker = require("../assets/personIcon.jpg");
   const blueMarker = require("../assets/blue_marker.png");
+  const finishFlag = require("../assets/finish-flag.jpg");
   const trip = useTrip();
   const slideAnim = useRef(new Animated.Value(0)).current;
   const menuHeight = (Dimensions.get("window").height * 18) / 100;
-  const [travelCoordinate, setTravelCoordinate] = useState([]);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [markerSelected, setMarkerSelected] = useState(null);
   const [markerSelectedType, setMarkerSelectedType] = useState(null);
   const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
   const [isImageCharged, setIsImageCharged] = useState(false);
-  const [stepIsSet, setStepIsSet] = useState(false);
-  const [centerCoordinate, setCenterCoordinate] = useState([0, 0]);
+
+  const geoJsonFeaturePosition = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Point",
+      coordinates: [position.longitude, position.latitude],
+    },
+  };
 
   const {
     isLoading: isLoadingSteps,
@@ -73,20 +71,19 @@ function MapScreen({ navigation }) {
     isError: isErrorTravels,
     error: errorTravels,
     data: travels,
-  } = useQuery(["travels", trip.id], () => getTripTravels(trip.id), {
-    enabled: stepIsSet,
-  });
+  } = useQuery(["travels", trip.id], () => getTripTravels(trip.id));
+  
 
   const getTripPOI = (tripId) => {
     return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${tripId}/poi`)
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        // console.log(data);
+        //console.log(data);
         return data;
       })
       .catch((error) => {
-        //        console.log(error.message);
+        //console.log(error.message);
       });
   };
 
@@ -96,16 +93,10 @@ function MapScreen({ navigation }) {
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        setStepIsSet(true);
-        setCenterCoordinate([
-          data[0].location.longitude,
-          data[0].location.latitude,
-        ]);
-
         return data;
       })
       .catch((error) => {
-        //  console.log(error.message);
+        //console.log(error.message);
       });
   };
 
@@ -114,7 +105,7 @@ function MapScreen({ navigation }) {
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
-        //     console.log(data);
+        //console.log(data);
         return data;
       })
       .catch((error) => {
@@ -153,19 +144,20 @@ function MapScreen({ navigation }) {
   };
 
   const StepMarker = ({ index, marker }) => {
+
     return (
       <PointAnnotation
         id={"step-" + index}
         children={true}
         coordinate={[marker.location.longitude, marker.location.latitude]}
-        anchor={{ x: 0.5, y: 1 }}
+        anchor={index !== steps.length - 1 ? { x: 0.5, y: 1 } : { x: 0, y: 1 }}
         onSelected={() => {
           openItemMenu("step", marker);
         }}
       >
         <Image
           id={"pointCount" + index}
-          source={blueMarker}
+          source={index !== steps.length - 1 ? blueMarker : finishFlag}
           style={{ width: 24, height: 35 }}
           onLoad={() => {
             setIsImageCharged(true);
@@ -188,16 +180,11 @@ function MapScreen({ navigation }) {
     );
   };
 
-  const Travel = ({ index, travel, steps }) => {
+  const Travel = ({ index, travel }) => {
     let locationStart, locationEnd;
 
-    steps.map((step) => {
-      if (step.id === travel.start.id) {
-        locationStart = [step.location.longitude, step.location.latitude];
-      } else if (step.id === travel.end.id) {
-        locationEnd = [step.location.longitude, step.location.latitude];
-      }
-    });
+    locationStart = [travel.start.location.longitude, travel.start.location.latitude];
+    locationEnd = [travel.end.location.longitude, travel.end.location.latitude];
 
     const geoJsonFeature = {
       type: "Feature",
@@ -225,11 +212,35 @@ function MapScreen({ navigation }) {
             lineJoin: "round",
             lineCap: "round",
           }}
-          layerIndex={200}
+          layerIndex={100}
         />
       </ShapeSource>
     );
   };
+
+  useEffect(() => {
+    let isPOILessThan5KmAway = false;
+    pointsOfInterest?.map(poi => {
+      if(distanceInKmBetweenCoordinates(poi.location.latitude, poi.location.longitude, position.latitude, position.longitude) < 5){
+        isPOILessThan5KmAway = true;
+      }
+    })
+    if(isPOILessThan5KmAway){
+      alert("Vous êtes à moins de 5 kilomètres d'un point d'intérêt.");
+    }
+  }, [position]);
+
+  const getStepDate = (step) => {
+    if(step.date){
+      let myDate = new Date(step.date);
+      let splitedDate = myDate.toLocaleDateString('fr-FR').split('/');
+      return splitedDate[1] + '/' + splitedDate[0] + '/' + splitedDate[2];  
+    }
+    else{
+      return null;
+    }
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -243,13 +254,6 @@ function MapScreen({ navigation }) {
             localizeLabels={true}
             compassViewPosition={3}
           >
-            {position != null && (
-              <PointAnnotation
-                key={"position"}
-                id={"position"}
-                coordinate={[position.longitude, position.latitude]}
-              />
-            )}
             <Camera 
               zoomLevel={5} 
               centerCoordinate={[position.longitude, position.latitude]}
@@ -268,26 +272,39 @@ function MapScreen({ navigation }) {
                     <POIMarker key={index} index={index} marker={marker} />
                   );
                 })}
-            {!stepIsSet || isLoadingTravels
+            {isLoadingTravels
               ? null
-              : travels.map((travel, index) => {
-                  return (
-                    <Travel
-                      key={index}
-                      index={index}
-                      travel={travel}
-                      steps={steps}
-                    />
-                  );
-                })}
+              :  travels.map((travel, index) => {
+                    return (
+                      <Travel
+                        key={index}
+                        index={index}
+                        travel={travel}
+                      />
+                    );
+            })}
+            <ShapeSource          //Icone de la position actuelle de l'utilisateur
+              id='positionShapeSource'
+              shape={geoJsonFeaturePosition}
+            >
+              <SymbolLayer 
+                id='positionIcon' 
+                style={{
+                  iconImage: personMarker,
+                  iconSize: 0.10,
+                  iconAllowOverlap: true,
+                  iconIgnorePlacement: true,
+                }}
+              />
+            </ShapeSource>
           </MapView>
-          <Pressable
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
             <AntDesign name='arrowleft' size={30} color='black' />
-          </Pressable>
-          <TravelMenu navigation={navigation} />
+          </TouchableOpacity>
+          <TripMenu navigation={navigation} />
           {isMarkerSelected && markerSelected ? (
             <>
               <MarkerMenu
@@ -300,19 +317,20 @@ function MapScreen({ navigation }) {
               />
               <CustomAlert
                 displayMsg={
-                  (markerSelectedType === "step"
+                  ((markerSelectedType === "step" || markerSelectedType === "poi"
                     ? markerSelected.description
-                    : markerSelectedType === "poi"
-                    ? markerSelected.location.name
                     : markerSelectedType === "travel"
-                    ? "Durée : " + markerSelected.duration
-                    : null) +
+                    ? "Distance : " + distanceInKmBetweenCoordinates(markerSelected.start.location.latitude, markerSelected.start.location.longitude, markerSelected.end.location.latitude, markerSelected.end.location.longitude).toFixed(2) +  'KM'
+                    : null) ?? 'Aucune description disponible.') +
+                  (markerSelectedType === "step" 
+                    ? '\n\nDate de commencement supposée : ' + (getStepDate(markerSelected) ?? 'Aucune date saisie.') 
+                    : "") +
                   (markerSelectedType !== "travel"
-                    ? "\nLongitude : " +
+                    ? "\n\nLongitude : " +
                       markerSelected.location.longitude +
                       "\nLatitude : " +
                       markerSelected.location.latitude
-                    : "  ")
+                    : "")
                 }
                 visibility={showDescriptionPopup}
                 dismissAlert={setShowDescriptionPopup}
@@ -352,4 +370,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { getWindowSize, MapScreen };
+export default MapScreen;

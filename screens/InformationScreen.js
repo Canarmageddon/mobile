@@ -3,13 +3,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   Image,
-  Pressable,
-  Button,
 } from "react-native";
 import { usePosition } from "../contexts/GeolocationContext";
-function InformationScreen({ navigation, route }) {
+import checkStatus from "../utils/checkStatus";
+
+function InformationScreen() {
   const [position, setPosition] = usePosition();
   const weatherKey = "812229d685d8b17aede0cff9dd71990a";
   const [weather, setWeather] = useState(null);
@@ -22,12 +21,12 @@ function InformationScreen({ navigation, route }) {
   const fetchLiveWeather = async (lon, lat) => {
     return await fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&lang=fr&units=metric`,
-    ).then((res) => res.json());
+    ).then(checkStatus).then((res) => res.json());
   };
   const fetchDailyWeather = async (lon, lat) => {
     return await fetch(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${weatherKey}&lang=fr&units=metric&exclude=currently,hourly,minutely,alerts`,
-    ).then((res) => res.json());
+    ).then(checkStatus).then((res) => res.json());
   };
   const convertUnixTimeToLocal = (unixTime) => {
     // const unixTime = weather.sys.sunrise;

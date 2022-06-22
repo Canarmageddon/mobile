@@ -1,18 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
-  Image,
-  Pressable,
-  Button,
-  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import checkStatus from "../utils/checkStatus";
 import { useTrip } from "../context/tripContext";
 import { useQuery } from "react-query";
 import { ScrollView } from "react-native-gesture-handler";
+
 function LogbookScreen({ navigation, route }) {
   const trip = useTrip();
   const { isLoading, isError, error, data } = useQuery(
@@ -21,7 +18,7 @@ function LogbookScreen({ navigation, route }) {
     { refetchOnWindowFocus: "always" },
   );
   const getLogBookEntries = (tripId) => {
-    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/1/logBookEntries`)
+    return fetch(`http://vm-26.iutrs.unistra.fr/api/trips/${trip.id}/logBookEntries`)
       .then(checkStatus)
       .then((response) => response.json())
       .then((data) => {
@@ -30,33 +27,32 @@ function LogbookScreen({ navigation, route }) {
   };
 
   return (
-    <>
     <View style={styles.content}>
       <ScrollView style={styles.entriesContainer}>
         {!isError &&
           !isLoading &&
           data != undefined &&
-          data.map((text) => (
+          data.length > 0 ? 
+          data.map((text, index) => (
             <>
-              <View style={styles.entrie}>
-                <Text>{text.creationDate}</Text>
-                <Text>{text.content}</Text>
+              <View key={index} style={styles.entrie}>
+                <Text style={styles.entriesText}>{new Date(text.creationDate).toLocaleDateString('fr-FR') + ' ' + new Date(text.creationDate).toLocaleTimeString()}</Text>
+                <Text style={styles.entriesText}>{text.content}</Text>
               </View>
             </>
-          ))}
+          ))
+          : <Text style={{textAlign: 'center', fontSize: 20}}>Il n'y a aucune entrée de journal.</Text>
+        } 
       </ScrollView>
-
       <View style={styles.buttonContainer}>
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate("Ajouter une entrée au journal")}
         >
           <Text style={styles.buttonText}>Ajouter une entrée au journal</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
-      
     </View>
-    </>
   );
 }
 
@@ -73,23 +69,33 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   entrie: {
-    width: '96%',
     minHeight: 70,
-    backgroundColor: '#D3D3D3',
-    borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 10,
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginLeft: 5,
-    marginBottom: 5
+    margin: 5,
+    borderRadius: 1,
+    backgroundColor: '#9AC4F8',
+    padding: 10,
+    borderColor: '#000',
+    borderRadius: 5,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 4,
+    borderBottomWidth: 4,
+  },
+  entriesText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15
   },
   buttonContainer: {
     width: '100%',
     height: '15%',
     backgroundColor: '#9AC4F8',
     alignItems: 'center', 
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderTopWidth: 2,
+    borderTopColor: '#000',
   },
   button: {
     borderRadius: 4, 
