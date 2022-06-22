@@ -24,17 +24,12 @@ import distanceInKmBetweenCoordinates from "../utils/calculDistance";
 import CustomAlert from "../components/CustomAlert";
 import TripMenu from "../components/TripMenu";
 import MarkerMenu from "../components/MarkerMenu";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { AntDesign } from "@expo/vector-icons";
 import { useTrip } from "../context/tripContext";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
-
-function getWindowSize() {
-  // return "width : " +  windowWidth + ", height : " + windowHeight;
-  return "width : 100, height : 50";
-}
 
 function MapScreen({ navigation }) {
   const [position] = usePosition();
@@ -42,7 +37,6 @@ function MapScreen({ navigation }) {
   const blueMarker = require("../assets/blue_marker.png");
   const finishFlag = require("../assets/finish-flag.jpg");
   const trip = useTrip();
-  const queryClient = useQueryClient();
   const slideAnim = useRef(new Animated.Value(0)).current;
   const menuHeight = (Dimensions.get("window").height * 18) / 100;
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
@@ -323,10 +317,8 @@ function MapScreen({ navigation }) {
               />
               <CustomAlert
                 displayMsg={
-                  ((markerSelectedType === "step"
+                  ((markerSelectedType === "step" || markerSelectedType === "poi"
                     ? markerSelected.description
-                    : markerSelectedType === "poi"
-                    ? markerSelected.location.name
                     : markerSelectedType === "travel"
                     ? "Distance : " + distanceInKmBetweenCoordinates(markerSelected.start.location.latitude, markerSelected.start.location.longitude, markerSelected.end.location.latitude, markerSelected.end.location.longitude).toFixed(2) +  'KM'
                     : null) ?? 'Aucune description disponible.') +
@@ -378,4 +370,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { getWindowSize, MapScreen };
+export default MapScreen;

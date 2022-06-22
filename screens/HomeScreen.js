@@ -64,7 +64,7 @@ const HomeScreen = ({ navigation }) => {
         {
             isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text>
             : <>
-            <View style={styles.nav}>
+            <View style={[styles.nav, {justifyContent: user != null && user.length !== 0 ? 'space-between' : 'flex-end'}]}>
                 {
                     user != null && user.length !== 0 ? 
                     <View style={styles.connexionView}>
@@ -78,13 +78,17 @@ const HomeScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 }
             </View>
-            {
-                user != null && user.length !== 0 ? <>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes voyages')}>
-                        <Text style={styles.buttonText}>Mes voyages</Text>
-                    </TouchableOpacity>
-                </> : null
-            }
+            <View style={styles.pageContent}>
+                <Text style={styles.contentText}>Voici l'application mobile de Duck-Trotter, le compagnon de voyage pour vous accompagner dans toutes vos aventures en toute simplicité.</Text>
+                <Text style={styles.contentText}>Cette application est destinée à être utilisée pendant les voyages que vous avez planifiés sur la partie Web de Duck-Trotter. Si vous êtes connecté, vous pouvez y accéder dès maintenant via le bouton ci-dessous.</Text>
+                <TouchableOpacity style={styles.button} onPress={() => {
+                    user != null && user.length !== 0 ? 
+                    navigation.navigate('Mes voyages') : 
+                    alert('Vous devez d\'abord vous connecter !');
+                }}>
+                    <Text style={styles.buttonText}>Mes voyages</Text>
+                </TouchableOpacity>
+            </View>
             </>
         }
     </>
@@ -99,8 +103,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 70,
-        width: '100%',
+        height: '10%',
+        borderBottomWidth: 2,
+        borderBottomColor: '#000'
     },
     title: {
         fontSize: 28,
@@ -110,13 +115,13 @@ const styles = StyleSheet.create({
     },
     nav: {
         flexDirection: 'row',
-        height: 50,
+        height: '12%',
         margin: 5,
-        justifyContent: 'flex-end',
+        width: '98%'
     },
     button: {
         margin: 5,
-        width: 100, 
+        width: 110, 
         borderRadius: 4, 
         backgroundColor: '#14274e', 
         justifyContent: 'center', 
@@ -131,12 +136,40 @@ const styles = StyleSheet.create({
         margin: 5
     },
     text: {
-        color: '#000',
-        fontSize: 15,
-        margin: 5
+        color: '#2c75ff',
+        fontSize: 20,
+        fontWeight: 'bold',
+        margin: 5,
+        flexWrap: 'wrap',
+        maxWidth: '65%'
     },
     connexionView: {
         alignItems: 'center',
-        flexDirection: 'row'
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: '100%'
+    },
+    pageContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        margin: 5,
+        borderRadius: 1,
+        backgroundColor: '#9AC4F8',
+        padding: 15,
+        justifyContent: 'space-between',
+        borderColor: '#000',
+        borderRadius: 5,
+        borderTopWidth: 2,
+        borderLeftWidth: 2,
+        borderRightWidth: 4,
+        borderBottomWidth: 4,
+        height: '75%'
+    }, 
+    contentText: {
+        color: '#fff',
+        fontSize: 23,
+        textAlign: 'justify',
+        fontWeight: 'bold'
     }
 });

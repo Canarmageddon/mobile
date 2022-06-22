@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
 import { Animated, Text, View, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 navigator.geolocation = require("@react-native-community/geolocation");
@@ -98,7 +98,7 @@ const MarkerMenu = ({
     markerSelectedType === "step"
       ? markerSelected.description
       : markerSelectedType === "poi"
-      ? markerSelected.location.name
+      ? markerSelected.title
       : markerSelectedType === "travel"
       ? `Trajet de ${markerSelected.start.id} à ${markerSelected.end.id}`
       : null;

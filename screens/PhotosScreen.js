@@ -10,8 +10,8 @@ import { useQuery, useQueryClient, useMutation } from 'react-query';
 import checkStatus from "../utils/checkStatus";
 import PhotosListItem from '../components/PhotoListItem';
 
-function PhotosScreen({navigation, route}) {
-    const [currentPosition, setCurrentPosition] = usePosition();
+function PhotosScreen({navigation}) {
+    const [currentPosition] = usePosition();
     const numColumns = 3;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(null);

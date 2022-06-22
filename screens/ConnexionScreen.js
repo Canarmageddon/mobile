@@ -16,7 +16,6 @@ const ConnexionScreen = ({ navigation }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [displayPassword, setDisplayPassword] = useState(false);
-  const [addrIsEmail, setAddrIsEmail] = useState(true);
   const userUpdate = useUserUpdate();
   const handleDisplayPassword = () => setDisplayPassword(!displayPassword);
 
@@ -94,11 +93,7 @@ const ConnexionScreen = ({ navigation }) => {
       <View >
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            addrIsEmail
-              ? getToken(login, password)
-              : alert("L'adresse e-mail n'est pas valide.");
-          }}
+          onPress={() => getToken(login, password)}
         >
           <Text style={styles.buttonText}>Connexion</Text>
         </TouchableOpacity>

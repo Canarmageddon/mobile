@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 
 import {Modal, Text, View, TouchableOpacity} from 'react-native';
 
@@ -51,7 +51,7 @@ export default function CustomAlert({ displayMsg, visibility, dismissAlert }) {
                 bottom: 0,
                 marginBottom: 10,
               }}>
-              <Text style={{color: 'white', margin: 15}}>OK</Text>
+              <Text style={{color: 'white'}}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>

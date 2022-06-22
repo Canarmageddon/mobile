@@ -6,17 +6,11 @@ import {
 } from "react-native";
 import React, {useState, useEffect} from "react";
 import {Camera} from 'expo-camera'
-import { useQueryClient, useMutation } from 'react-query';
-import { useTrip } from "../context/tripContext";
-import { useUser } from "../context/userContext";
-import checkStatus from "../utils/checkStatus";
+import { useMutation } from 'react-query';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
 import * as MediaLibrary from 'expo-media-library';
 
 const CameraScreen = ({route, navigation}) => {
-    const trip = useTrip();
-    const [user, token] = useUser();
-    const queryClient = useQueryClient();
     const [startCamera,setStartCamera] = React.useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [capturedImage, setCapturedImage] = useState(null);

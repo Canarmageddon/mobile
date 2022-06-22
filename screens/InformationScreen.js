@@ -8,7 +8,7 @@ import {
 import { usePosition } from "../contexts/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 
-function InformationScreen({ navigation, route }) {
+function InformationScreen() {
   const [position, setPosition] = usePosition();
   const weatherKey = "812229d685d8b17aede0cff9dd71990a";
   const [weather, setWeather] = useState(null);

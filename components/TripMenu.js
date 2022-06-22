@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Animated, View, TouchableOpacity, Modal, Text } from "react-native";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useUserUpdate } from "../context/userContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TripMenu = ({ navigation }) => {
   const slideAnim1 = useRef(new Animated.Value(0)).current;

@@ -67,7 +67,7 @@ function ExpansesScreen({navigation}) {
                 compareExpansesDue(queryClient.getQueriesData(['users', trip.id])[0][1], data);
 
                 return data;
-            })  
+            })
             .catch(error => {
                 console.log(error.message);
             });
@@ -167,8 +167,8 @@ function ExpansesScreen({navigation}) {
                 {
                     currentTab === 0 ?
                     <View style={styles.expansesListContainer}>
-                        {isLoadingUsers || isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> : 
-                            expanses.length > 0 ? 
+                        {!totalPayedIsSet || isLoading ? <Text style={{textAlign: 'center', fontSize: 20}}>Chargement...</Text> : 
+                            queryClient.getQueryData(['tripExpanses', trip.id]).length > 0 ? 
                             <FlatList
                                 data={expanses}
                                 renderItem={ExpansesListItem}

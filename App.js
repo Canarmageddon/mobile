@@ -3,7 +3,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { MapScreen } from "./screens/MapScreen";
+import MapScreen from "./screens/MapScreen";
 import HomeScreen from "./screens/HomeScreen";
 import DocumentScreen from "./screens/DocumentScreen";
 import LogbookScreen from "./screens/LogbookScreen";
