@@ -5,7 +5,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import RNFetchBlob from "rn-fetch-blob";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
-import { usePosition } from "../contexts/GeolocationContext";
+import { usePosition } from "../context/GeolocationContext";
 import { useQuery, useQueryClient, useMutation } from 'react-query';
 import checkStatus from "../utils/checkStatus";
 import PhotosListItem from '../components/PhotoListItem';

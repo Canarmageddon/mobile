@@ -16,7 +16,7 @@ import ConnexionScreen from "./screens/ConnexionScreen";
 import TripListScreen from "./screens/TripListScreen";
 import DetailEtapes from "./screens/DetailEtapes";
 import MembersScreen from "./screens/MembersScreen";
-import { PositionProvider } from "./contexts/GeolocationContext";
+import { PositionProvider } from "./context/GeolocationContext";
 import NewLogBookEntryScreen from "./screens/NewLogBookEntryScreen";
 import { UserProvider } from "./context/userContext";
 import { TripProvider } from "./context/tripContext";
