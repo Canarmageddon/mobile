@@ -1,6 +1,7 @@
 import React from "react";
 import { Animated, Text, View, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import distanceInKmBetweenCoordinates from "../utils/calculDistance";
 navigator.geolocation = require("@react-native-community/geolocation");
 
 const MarkerMenu = ({
@@ -100,7 +101,7 @@ const MarkerMenu = ({
       : markerSelectedType === "poi"
       ? markerSelected.title
       : markerSelectedType === "travel"
-      ? `Trajet de ${markerSelected.start.id} à ${markerSelected.end.id}`
+      ? `Trajet de ${distanceInKmBetweenCoordinates(markerSelected.start.location.latitude, markerSelected.start.location.longitude, markerSelected.end.location.latitude, markerSelected.end.location.longitude).toFixed(2)} KM`
       : null;
 
   return (

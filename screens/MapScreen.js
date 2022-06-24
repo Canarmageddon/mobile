@@ -18,7 +18,7 @@ import {
   LineLayer,
   SymbolLayer
 } from "../MapBox";
-import { usePosition } from "../contexts/GeolocationContext";
+import { usePosition } from "../context/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import distanceInKmBetweenCoordinates from "../utils/calculDistance";
 import CustomAlert from "../components/CustomAlert";

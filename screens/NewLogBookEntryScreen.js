@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, Text, TouchableOpacity } from "react-nativ
 import { StackActions } from "@react-navigation/native";
 import { useTrip } from "../context/tripContext";
 import { useUser } from "../context/userContext";
-import { usePosition } from "../contexts/GeolocationContext";
+import { usePosition } from "../context/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 import { useMutation, useQueryClient } from "react-query";
 

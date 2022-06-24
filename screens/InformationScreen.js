@@ -5,7 +5,7 @@ import {
   View,
   Image,
 } from "react-native";
-import { usePosition } from "../contexts/GeolocationContext";
+import { usePosition } from "../context/GeolocationContext";
 import checkStatus from "../utils/checkStatus";
 
 function InformationScreen() {
